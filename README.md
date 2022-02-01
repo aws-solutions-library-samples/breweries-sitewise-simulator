@@ -14,17 +14,17 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
      ```
 2. Install the OPC UA Server Python Library
 
-    With pip:
+  With pip:
 
-      pip install opcua
+    pip install opcua
 
-    Ubuntu:
+  Ubuntu:
 
-      apt install python-opcua        # Library
-      apt install python-opcua-tools  # Command-line tools
+    apt install python-opcua        # Library
+    apt install python-opcua-tools  # Command-line tools
 
-    Dependencies:
+  Dependencies:
 
-      cryptography, dateutil, lxml and pytz.
+    cryptography, dateutil, lxml and pytz.
 
 
