@@ -43,7 +43,7 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 
 7. Now you will need to create Asset Models in the IoT SiteWise console, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/industrial-asset-models.html. The Amazonian Breweries project leverages the ISA-95 Equipment Model to define the plant hierarchy (Enterprise->Site->Area->Production Unit). To match up with the Amazonian Breweries OPC UA Server Plant Hierachy and Assets, here are the Asset Models you will need to create in IoT SiteWise:
 
-  - Enterprise Model (Enterprise_Model.jpg)
+  ![Enterprise Model] (Enterprise_Model.jpg)
 
 
 
