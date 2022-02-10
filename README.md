@@ -15,25 +15,22 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 2. Install the OPC UA Server Python Library
 
     - With pip:
-    ```
-
+      ```
       pip install opcua
 
       ```
 
     - Ubuntu:
-    ```
-
+      ```
       apt install python-opcua        # Library
       apt install python-opcua-tools  # Command-line tools
 
-    ```
+      ```
 
     - Dependencies:
-    ```
-
+      ```
       cryptography, dateutil, lxml and pytz.
 
-    ```
+      ```
 
 3. Open the awsBrewOPCUAServer.py, go to line 70, and update the IP address to your servers IP address   
