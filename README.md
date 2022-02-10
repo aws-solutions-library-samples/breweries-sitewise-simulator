@@ -27,4 +27,4 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 
     cryptography, dateutil, lxml and pytz.
 
-3. Open the awsBrewOPCUAServer.py, go to line 52, and update the IP address to your servers IP address   
+3. Open the awsBrewOPCUAServer.py, go to line 70, and update the IP address to your servers IP address   
