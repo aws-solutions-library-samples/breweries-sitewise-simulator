@@ -97,7 +97,7 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
     - In the Assets list, open the <b>TampaPlant</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Areas</b> and for the <b>Asset</b> select <b>Bottling</b>. Repeat this for <b>Areas/BeerStorage</b>, <b>Areas/Fermentation</b>, <b>Areas/Brewing</b>, <b>Areas/Mashing</b>, and <b>Areas/Roasting</b>.
     - In the Assets list, open the <b>AmazonianBreweries</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Sites</b> and for the <b>Asset</b> select <b>TampaPlant</b>. 
 
-12. Refresh the browser and the asset hierarchy should be all set.  
+12. Refresh the browser to update the hierarchy.  
 
 
       
