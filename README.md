@@ -43,7 +43,7 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 
 7. Create and deploy the AWS IoT SiteWise Edge gateway to the Edge Device (see step 5 above), please use this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/configure-gateway-ggv2.html. The Data processing pack is not required.
 
-8. Now you will need to create Models in the IoT SiteWise console, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/industrial-asset-models.html. The Amazonian Breweries project leverages the ISA-95 Equipment Model to define the plant hierarchy (Enterprise->Site->Area->Production Unit). To match up with the Amazonian Breweries OPC UA Server Plant Hierachy and Assets, here are the Asset Models and Measurememts you will need to create in IoT SiteWise:
+8. Now you will need to create Models in the IoT SiteWise console, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/industrial-asset-models.html. The Amazonian Breweries project leverages the ISA-95 Equipment Model to define the plant hierarchy (Enterprise->Site->Area->Production Unit). To match up with the Amazonian Breweries OPC UA Server Plant Hierachy and Assets, here are the Asset Models and Measurements you will need to create in IoT SiteWise:
 
     - Enterprise [Enterprise Model](./images/Enterprise_Model.jpg)
     - Site [Site Model](./images/Site_Model.jpg)
@@ -74,7 +74,10 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
     - Finally, select the <b>Area</b> Model and click the <b>Edit</b> button, scroll down to the <b>Hierarchy definitions</b> section, then click <b>Add new hierarchy</b>. For the <b>Hierarchy name</b> use <b>Roaster</b> and then in the drop down listbox choose the <b>Roaster</b> Model, repeat this for "MaltMill/MaltMill", "MashTun/MashTun", "BoilKettle/BoilKettle", "Fermenter/Fermenter", "BrightTank/BrightTank", and "BottleLine/BottleLine", then click the <b>Save</b> button at the bottom of the page              
 
 9. After creating the Models, we can create Assets that will represent the physical assets (digital twins) that exist in the manufacuring facility, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/create-assets.html.  The plant hierarchy that you will create looks like this [Asset Plant Hierarchy](./images/Asset_Plant_Hierarchy.jpg
-).        
+).  
+
+10. To begin creating Assets, click the <b>Create asset</b> button and create each of the following:
+    - In the <b>Model</b> drop-down list box, select <b>BottleLine</b>          
 
 
 
