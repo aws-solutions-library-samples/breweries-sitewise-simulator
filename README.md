@@ -64,6 +64,7 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
       - BrightTank Measurements Part 2 [BrightTank Measurements Part 2](./images/BrightTank_Model_Measurements_Part_2.jpg)
     - BottleLine [BottleLine Model](./images/BottleLine_Model.jpg)
       - BottleLine Measurements Part 1 [BottleLine Measurements Part 1](./images/BottleLine_Model_Measurements_Part_1.jpg)
+      - BottleLine Measurements Part 2 [BottleLine Measurements Part 2](./images/BottleLine_Model_Measurements_Part_2.jpg)
       
 
 
