@@ -49,6 +49,22 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
     - Roaster [Roaster Model](./images/Roaster_Model.jpg)
       - Roaster Measurements [Roaster Measurements](./images/Roaster_Model_Measurements.jpg)
     - MaltMill [Roaster Model](./images/MaltMill_Model.jpg)
+      - MaltMill Measurements [MaltMill Measurements](./images/MaltMill_Model_Measurements.jpg)
+    - MashTun [MashTun Model](./images/MashTun_Model.jpg)
+      - MashTun Measurements Part 1 [MaltMill Measurements Part 1](./images/MashTun_Model_Measurements_Part_1.jpg)
+      - MashTun Measurements Part 2 [MaltMill Measurements Part 2](./images/MashTun_Model_Measurements_Part_2.jpg)
+    - BoilKettle [BoilKettle Model](./images/BoilKettle_Model.jpg)
+      - BoilKettle Measurements Part 1 [BoilKettle Measurements Part 1](./images/BoilKettle_Model_Measurements_Part_1.jpg)
+      - BoilKettle Measurements Part 2 [BoilKettle Measurements Part 2](./images/BoilKettle_Model_Measurements_Part_2.jpg)
+    - Fermenter [Fermenter Model](./images/Fermenter_Model.jpg)
+      - Fermenter Measurements Part 1 [Fermenter Measurements Part 1](./images/Fermenter_Model_Measurements_Part_1.jpg)
+      - Fermenter Measurements Part 2 [Fermenter Measurements Part 2](./images/Fermenter_Model_Measurements_Part_2.jpg)
+    - BrightTank [BrightTank Model](./images/BrightTank_Model.jpg)
+      - BrightTank Measurements Part 1 [BrightTank Measurements Part 1](./images/BrightTank_Model_Measurements_Part_1.jpg)
+      - BrightTank Measurements Part 2 [BrightTank Measurements Part 2](./images/BrightTank_Model_Measurements_Part_2.jpg)
+    - BottleLine [BottleLine Model](./images/BottleLine_Model.jpg)
+      - BottleLine Measurements Part 1 [BottleLine Measurements Part 1](./images/BottleLine_Model_Measurements_Part_1.jpg)
+      
 
 
 
