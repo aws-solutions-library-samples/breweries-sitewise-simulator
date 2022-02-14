@@ -70,7 +70,8 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
       
 10. In order to create a plant hierarchy (Enterprise->Site->Area->Production Unit), we have to edit the above Models to support "contained" Models. Select the <b>Enterprise</b> Model and click the <b>Edit</b> button, scroll down to the <b>Hierarchy definitions</b> section, then click <b>Add new hierarchy</b>. For the <b>Hierarchy name</b> use <b>Sites</b> and then in the drop down listbox choose the <b>Site</b> Model.  Next, select the <b>Site</b> Model and click the <b>Edit</b> button, scroll down to the <b>Hierarchy definitions</b> section, then click <b>Add new hierarchy</b>. For the <b>Hierarchy name</b> use <b>Areas</b> and then in the drop down listbox choose the <b>Area</b> Model. Finally, select the <b>Area</b> Model and click the <b>Edit</b> button, scroll down to the <b>Hierarchy definitions</b> section, then click <b>Add new hierarchy</b>. For the <b>Hierarchy name</b> use <b>Roaster</b> and then in the drop down listbox choose the <b>Roaster</b> Model, repeat this for "MaltMill/MaltMill", "MashTun/MashTun", "BoilKettle/BoilKettle", "Fermenter/Fermenter", "BrightTank/BrightTank", and "BottleLine/BottleLine".              
 
-9. After creating the Models, we can create Assets that will represent real assets that exist in the manufacuring facility, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/create-assets.html.     
+9. After creating the Models, we can create Assets that will represent the physical assets (digital twins) that exist in the manufacuring facility, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/create-assets.html.  The plant hierarchy that you will create looks like this [Asset Plant Hierarchy](./images/Asset_Plant_Hierarchy.jpg
+)     
 
 
 
