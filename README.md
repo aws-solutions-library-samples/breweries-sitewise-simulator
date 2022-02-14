@@ -68,16 +68,16 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
       - BottleLine Measurements Part 1 [BottleLine Measurements Part 1](./images/BottleLine_Model_Measurements_Part_1.jpg)
       - BottleLine Measurements Part 2 [BottleLine Measurements Part 2](./images/BottleLine_Model_Measurements_Part_2.jpg)
       
-10. In order to create a plant hierarchy (Enterprise->Site->Area->Production Unit), we have to edit the above Models to support "contained" Models. 
+9. In order to create a plant hierarchy (Enterprise->Site->Area->Production Unit), we have to edit the above Models to support "contained" Models. 
     - Select the <b>Enterprise</b> Model and click the <b>Edit</b> button, scroll down to the <b>Hierarchy definitions</b> section, then click <b>Add new hierarchy</b>. For the <b>Hierarchy name</b> use <b>Sites</b> and then in the drop down listbox choose the <b>Site</b> Model, then click the <b>Save</b> button at the bottom of the page.  
     - Next, select the <b>Site</b> Model and click the <b>Edit</b> button, scroll down to the <b>Hierarchy definitions</b> section, then click <b>Add new hierarchy</b>. For the <b>Hierarchy name</b> use <b>Areas</b> and then in the drop down listbox choose the <b>Area</b> Model, then click the <b>Save</b> button at the bottom of the page. 
     - Finally, select the <b>Area</b> Model and click the <b>Edit</b> button, scroll down to the <b>Hierarchy definitions</b> section, then click <b>Add new hierarchy</b>. For the <b>Hierarchy name</b> use <b>Roaster</b> and then in the drop down listbox choose the <b>Roaster</b> Model, repeat this for "MaltMill/MaltMill", "MashTun/MashTun", "BoilKettle/BoilKettle", "Fermenter/Fermenter", "BrightTank/BrightTank", and "BottleLine/BottleLine", then click the <b>Save</b> button at the bottom of the page              
 
-9. After creating the Models, we can create Assets that will represent the physical assets (digital twins) that exist in the manufacuring facility, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/create-assets.html.  The plant hierarchy that you will create looks like this [Asset Plant Hierarchy](./images/Asset_Plant_Hierarchy.jpg
+10. After creating the Models, we can create Assets that will represent the physical assets (digital twins) that exist in the manufacuring facility, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/create-assets.html.  The plant hierarchy that you will create looks like this [Asset Plant Hierarchy](./images/Asset_Plant_Hierarchy.jpg
 ).  
 
-10. To begin creating Assets, click the <b>Create asset</b> button and create each of the following:
-    - In the <b>Model</b> drop-down list box, select <b>BottleLine</b> and name it <b>BottleLine401/b>, click the <b>Create asset</b> button.  Repeat this process for <b>BottleLine402</b> and <b>BottleLine403</b>.
+11. To begin creating Assets, click the <b>Create asset</b> button and create each of the following:
+    - In the <b>Model</b> drop-down list box, select <b>BottleLine</b> and name it <b>BottleLine401</b>, click the <b>Create asset</b> button.  Repeat this process for <b>BottleLine402</b> and <b>BottleLine403</b>.
     - In the <b>Model</b> drop-down list box, select <b>BrightTank</b> and name it <b>BrightTank301</b>, click the <b>Create asset</b> button.  Repeat this process for <b>BrightTank302</b>, <b>BrightTank303</b>, <b>BrightTank304</b>, <b>BrightTank305</b>.
     - In the <b>Model</b> drop-down list box, select <b>Fermenter</b> and name it <b>Fermenter100</b>, click the <b>Create asset</b> button.  Repeat this process for <b>Fermenter200</b>. 
     - In the <b>Model</b> drop-down list box, select <b>MashTun</b> and name it <b>MashTun100</b>, click the <b>Create asset</b> button.  Repeat this process for <b>MashTun200</b>.
@@ -87,7 +87,7 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
     - In the <b>Model</b> drop-down list box, select <b>Site</b> and name it <b>TampaPlant</b>, click the <b>Create asset</b> button.
     - In the <b>Model</b> drop-down list box, select <b>Enterprise</b> and name it <b>AmazonianBreweries</b>, click the <b>Create asset</b> button.               
 
-11. Now we need to create the Asset hierarchy for the physical assets for more meaningful data context. 
+12. Now we need to create the Asset hierarchy for the physical assets for more meaningful data context. 
     - In the Assets list, open the <b>Bottling</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>BottleLine</b> and for the <b>Asset</b> select <b>BottleLine401</b>. Repeat this for <b>Bottleline/BottleLine402</b> and <b>Bottleline/BottleLine403</b>. 
     - In the Assets list, open the <b>BeerStorage</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>BrightTank</b> and for the <b>Asset</b> select <b>BrightTank301</b>. Repeat this for <b>BrightTank/BrightTank302</b>, <b>BrightTank/BrightTank303</b>, <b>BrightTank/BrightTank304</b>, and <b>BrightTank/BrightTank305</b>.    
     - In the Assets list, open the <b>Fermentation</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Fermenter</b> and for the <b>Asset</b> select <b>Fermenter100</b>. Repeat this for <b>Fermenter/Fermenter200</b>. 
@@ -97,7 +97,7 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
     - In the Assets list, open the <b>TampaPlant</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Areas</b> and for the <b>Asset</b> select <b>Bottling</b>. Repeat this for <b>Areas/BeerStorage</b>, <b>Areas/Fermentation</b>, <b>Areas/Brewing</b>, <b>Areas/Mashing</b>, and <b>Areas/Roasting</b>.
     - In the Assets list, open the <b>AmazonianBreweries</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Sites</b> and for the <b>Asset</b> select <b>TampaPlant</b>. 
 
-12. Refresh the browser to update the hierarchy.  
+13. Refresh the browser to update the hierarchy.  
 
 
       
