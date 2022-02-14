@@ -78,14 +78,17 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 
 10. To begin creating Assets, click the <b>Create asset</b> button and create each of the following:
     - In the <b>Model</b> drop-down list box, select <b>BottleLine</b> and name it <b>BottleLine401/b>, click the <b>Create asset</b> button.  Repeat this process for <b>BottleLine402</b> and <b>BottleLine403</b>.
-    - In the <b>Model</b> drop-down list box, select <b>BrightTank</b> and name it <b>BrightTank301/b>, click the <b>Create asset</b> button.  Repeat this process for <b>BrightTank302</b>, <b>BrightTank303</b>, <b>BrightTank304</b>, <b>BrightTank305</b>.
+    - In the <b>Model</b> drop-down list box, select <b>BrightTank</b> and name it <b>BrightTank301</b>, click the <b>Create asset</b> button.  Repeat this process for <b>BrightTank302</b>, <b>BrightTank303</b>, <b>BrightTank304</b>, <b>BrightTank305</b>.
     - In the <b>Model</b> drop-down list box, select <b>Fermenter</b> and name it <b>Fermenter100</b>, click the <b>Create asset</b> button.  Repeat this process for <b>Fermenter200</b>. 
     - In the <b>Model</b> drop-down list box, select <b>MashTun</b> and name it <b>MashTun100</b>, click the <b>Create asset</b> button.  Repeat this process for <b>MashTun200</b>.
     - In the <b>Model</b> drop-down list box, select <b>MaltMill</b> and name it <b>MaltMill100</b>, click the <b>Create asset</b> button.  Repeat this process for <b>MaltMill100</b>.
     - In the <b>Model</b> drop-down list box, select <b>Roaster</b> and name it <b>Roaster100</b>, click the <b>Create asset</b> button.  Repeat this process for <b>Roaster200</b>.
-    - In the <b>Model</b> drop-down list box, select <b>Area</b> and name it <b>Bottling</b>, click the <b>Create asset</b> button.  Repeat this process for <b>BeerStorage</b>, <b>Fermentation</b>, <b>Brewing</b>, <b>Mashing</b>, and <b>Roasting</b>.             
+    - In the <b>Model</b> drop-down list box, select <b>Area</b> and name it <b>Bottling</b>, click the <b>Create asset</b> button.  Repeat this process for <b>BeerStorage</b>, <b>Fermentation</b>, <b>Brewing</b>, <b>Mashing</b>, and <b>Roasting</b>.
+    - In the <b>Model</b> drop-down list box, select <b>Site</b> and name it <b>TampaPlant</b>, click the <b>Create asset</b> button.
+    - In the <b>Model</b> drop-down list box, select <b>Enterprise</b> and name it <b>AmazonianBreweries</b>, click the <b>Create asset</b> button.               
 
-
+11. Now we need to create the Asset hierarchy for the physical assets for more meaningful data context. 
+    - In the Assets list, open the <b>Bottling</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>BottleLine</b> and for the <b>Asset</b> select <b>BottleLine401</b>. Repeat this for <b>Bottleline/BottleLine402</b> and <b>Bottleline/BottleLine403</b>.      
 
 
       
