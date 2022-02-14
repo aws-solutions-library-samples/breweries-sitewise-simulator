@@ -7,7 +7,7 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 ## Prerequisites
 
 1. [Python3](https://www.python.org/downloads/)
-   - Verify your python3 path and version (3.10.0+). 
+   - Verify your python3 path and version (<b> needs to be 3.10.0+ </b>). 
      ```
      python3 --version
 
@@ -37,7 +37,7 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 
 4. Copy Amazonian Breweries program folder to the server host (see Step 3 above), then open the AmazonianBreweries\awsBrewOPCUAServer.py file, go to line 70, and update the IP address to your servers IP address.  
 
-5. Start the Amazonian Breweries program - python3.exe <directory where program was copied to>/AmazonianBreweries/awsBrewOPCUAServer.py 
+5. Start the Amazonian Breweries program - python3.exe "directory where program was copied to"/AmazonianBreweries/awsBrewOPCUAServer.py 
 
 6. Create an Edge Device (Ubuntu 20.04 or 18.04, Red Hat Enterprise Linux (RHEL) 8, or Amazon Linux 2) to host AWS IoT SiteWise Edge  gateway.  
 
