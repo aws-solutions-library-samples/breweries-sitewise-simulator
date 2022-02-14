@@ -35,7 +35,7 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 
 3. Create a server environment (Linux, Windows, or macOS) to host the Amazonian Breweries OPC UA Server Python program. 
 
-4. Copy Amazonian Breweries program to the server host (see Step 3 above), then open the AmazonianBreweries\awsBrewOPCUAServer.py file, go to line 70, and update the IP address to your servers IP address.  
+4. Copy Amazonian Breweries program folder to the server host (see Step 3 above), then open the AmazonianBreweries\awsBrewOPCUAServer.py file, go to line 70, and update the IP address to your servers IP address.  
 
 5. Start the Amazonian Breweries program - python3.exe <directory where program was copied to>/AmazonianBreweries/awsBrewOPCUAServer.py 
 
