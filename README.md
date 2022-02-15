@@ -97,7 +97,17 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
     - In the Assets list, open the <b>TampaPlant</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Areas</b> and for the <b>Asset</b> select <b>Bottling</b>. Repeat this for <b>Areas/BeerStorage</b>, <b>Areas/Fermentation</b>, <b>Areas/Brewing</b>, <b>Areas/Mashing</b>, and <b>Areas/Roasting</b>.
     - In the Assets list, open the <b>AmazonianBreweries</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Sites</b> and for the <b>Asset</b> select <b>TampaPlant</b>. 
 
-13. Refresh the browser to update the hierarchy.  
+13. Refresh the browser to update the hierarchy. 
+
+14. The final prerequisite task is to add an Alias to each Measurement in each Asset.  If you have Data Streams capability enabled, you can use the AWS Console UI to manage data streams coming in from industrial assets, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/manage-data-streams-console.html.  If you need to execute this manually, please follow this alias pattern to fill in the Alias field for each Measurement:
+    - /AmazonianBreweries/TampaPlant/<<Area>>/<<AssetName>>/<<MeasurementName>>
+  - Here are a handful of examples to get you started:
+    - /AmazonianBreweries/TampaPlant/Roasting/Roaster100/Utilization  
+    - /AmazonianBreweries/TampaPlant/Mashing/MashTun100/Utilization
+    - /AmazonianBreweries/TampaPlant/Brewing/BoilKettle100/Utilization
+    - /AmazonianBreweries/TampaPlant/Fermentation/Fermenter100/Utilization 
+    - /AmazonianBreweries/TampaPlant/BeerStorage/BrightTank301/Utilization 
+    - /AmazonianBreweries/TampaPlant/Bottling/BottleLine401/Utilization    
 
 
       
