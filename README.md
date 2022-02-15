@@ -100,7 +100,7 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 13. Refresh the browser to update the hierarchy. 
 
 14. The final prerequisite task is to add an Alias to each Measurement in each Asset.  If you have Data Streams capability enabled, you can use the AWS Console UI to manage data streams coming in from industrial assets, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/manage-data-streams-console.html.  If you need to execute this manually, please follow this alias pattern to fill in the Alias field for each Measurement:
-    - /AmazonianBreweries/TampaPlant/<<Area>>/<<AssetName>>/<<MeasurementName>>
+    - /AmazonianBreweries/TampaPlant/<i>Area</i>/<i>AssetName</i>/<i>MeasurementName</i>
   - Here are a handful of examples to get you started:
     - /AmazonianBreweries/TampaPlant/Roasting/Roaster100/Utilization  
     - /AmazonianBreweries/TampaPlant/Mashing/MashTun100/Utilization
