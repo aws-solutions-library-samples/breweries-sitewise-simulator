@@ -35,9 +35,9 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 
 3. Create a server environment (Linux, Windows, or macOS) to host the Amazonian Breweries OPC UA Server Python program. 
 
-4. Copy Amazonian Breweries program folder to the server host (see Step 3 above), then open the AmazonianBreweries\awsBrewOPCUAServer.py file, go to line 70, and update the IP address to your servers IP address.  
+4. Copy the Amazonian Breweries program folder to the server host (see Step 3 above), then open the AmazonianBreweries\awsBrewOPCUAServer.py file, go to line 70, and update the IP address to your servers IP address.  
 
-5. Start the Amazonian Breweries program - python3.exe "directory where program folder was copied to"/AmazonianBreweries/awsBrewOPCUAServer.py <b>(Note: Once the Amazonian Breweries program is running, the factory simulation will begin automatically and OPC UA Clients such as the IoT SiteWise OPC Collector, UA Expert, Kepware, etc. can begin to ingest and visual the data)</b> 
+5. Start the Amazonian Breweries program - python3.exe "directory where program folder was copied to"/AmazonianBreweries/awsBrewOPCUAServer.py (Note: Once the Amazonian Breweries program is running, the factory simulation will begin automatically and OPC UA Clients such as the IoT SiteWise OPC Collector, UA Expert, Kepware, etc. can begin to ingest and/or visual the data) 
 
 6. Create an Edge Device (Ubuntu 20.04 or 18.04, Red Hat Enterprise Linux (RHEL) 8, or Amazon Linux 2) to host AWS IoT SiteWise Edge  gateway.  
 
