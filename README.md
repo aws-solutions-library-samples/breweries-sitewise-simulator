@@ -6,13 +6,15 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 
 ## Prerequisites
 
-1. [Python3](https://www.python.org/downloads/)
+1. Create a server environment (Linux, Windows, or macOS) to host the Amazonian Breweries OPC UA Server Python program.
+
+2. [Python3](https://www.python.org/downloads/)
    - Verify your python3 path and version (<b>needs to be 3.10.0+</b>). 
      ```
      python3 --version
 
      ```
-2. Install the OPC UA Server Python Library
+3. Install the OPC UA Server Python Library
 
     - With pip:
       ```
@@ -33,9 +35,7 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 
       ```
 
-3. Create a server environment (Linux, Windows, or macOS) to host the Amazonian Breweries OPC UA Server Python program. 
-
-4. Copy the Amazonian Breweries program folder to the server host (see Step 3 above), then open the AmazonianBreweries\awsBrewOPCUAServer.py file, go to line 70, and update the IP address to your servers IP address.  
+4. Copy the Amazonian Breweries program folder to the server host (see Step 1 above), then open the AmazonianBreweries\awsBrewOPCUAServer.py file, go to line 70, and update the IP address to your servers IP address.  
 
 5. Start the Amazonian Breweries program - python3.exe "directory where program folder was copied to"/AmazonianBreweries/awsBrewOPCUAServer.py (<b>Note:</b> Once the Amazonian Breweries program is running, the factory simulation will begin automatically and OPC UA Clients such as the IoT SiteWise OPC Collector, UA Expert, Kepware, etc. can begin to ingest and/or visual the data) 
 
