@@ -43,6 +43,8 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 
 7. Create and deploy the AWS IoT SiteWise Edge gateway to the Edge Device (see step 6 above), please use this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/configure-gateway-ggv2.html. The Data processing pack is not required.
 
+    - <b>Note: When configuring the OPC UA datasource in the IoT SiteWise (or any 3rd party OPC UA Client), set the "Message security mode" to "None" and the "Authentication configuration" to "None - No authentication".  The Amazonian Breweries OPC UA Server program has not been tested with encryption or certificates for this current version of the program.</b>          
+
 8. Now you will need to create Models in the IoT SiteWise console, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/industrial-asset-models.html. The Amazonian Breweries project leverages the ISA-95 Equipment Model to define the plant hierarchy (Enterprise->Site->Area->Production Unit). To match up with the Amazonian Breweries OPC UA Server Plant Hierachy and Assets, here are the Asset Models and Measurements you will need to create in IoT SiteWise:
 
     - Enterprise [Enterprise Model](./images/Enterprise_Model.jpg)
