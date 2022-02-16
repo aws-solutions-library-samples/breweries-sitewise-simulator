@@ -111,5 +111,10 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
     - /AmazonianBreweries/TampaPlant/BeerStorage/BrightTank301/Utilization 
     - /AmazonianBreweries/TampaPlant/Bottling/BottleLine401/Utilization    
 
-
+## Control Narrative
       
+The Amazonian Breweries program creates factory like quality data.  This section of the getting started guide will describe how the Amazonian Brewery works so you can have a better understanding of how to use and leverage the industrial data provided by the brewery in your presentations, demonstrations, and proof of concepts.  
+
+We will begin with an overview of the overall Amazonian Breweries Material Flow.
+
+![AmazonianBreweriesMaterialFlow](./images/AmazonianBreweriesMaterialFlow.jpg)
