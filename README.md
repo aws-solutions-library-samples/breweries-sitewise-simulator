@@ -1,4 +1,4 @@
-# Amazonian Breweries OPC UA Server Getting Started
+# Amazonian Breweries SiteWise Simulator - Getting Started
 
 ## Summary
 
@@ -18,7 +18,7 @@ The Amazonian Breweries program creates factory like quality data.  This section
 
 We will begin with an overview of the overall Amazonian Breweries Material Flow.
 
-![AmazonBreweriesMaterialFlow](./images/AmazonBreweriesMaterialFlow.jpg)
+![AmazonBreweriesMaterialFlow](./images/AmazonianBreweriesMaterialFlow.jpg)
 
 
 ## Quick Deploy
