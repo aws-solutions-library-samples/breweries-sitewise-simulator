@@ -40,11 +40,11 @@ import boto3
 import argparse
 import threading
 
-
 #########################################################################
 # OPC UA Library provided by - https://github.com/FreeOpcUa/python-opcua
 from opcua import Server, ua
 #########################################################################
+
 
 
 if __name__ == "__main__":     
@@ -71,6 +71,20 @@ if __name__ == "__main__":
     """   
 
     def publish_properties_to_sitewise(area_name, asset_name, timeInSeconds, properties):
+        """
+        publish_properties_to_sitewise - Publishes an array of property values from simulatior
+                                         to IoT SiteWise. Parameter construct the property alias
+                                         in IoT SiteWise
+
+        :param area_name: In alias for property, the area name is required (i.e "Mashing", "Roasting", ...)
+        :param asset_name: In alias for property, the asset name is required (i.e "Roaster100", "Roaster200", ...)
+        :param timeInSeconds: epoch time in seconds. This is required for the IoT SiteWise TVQ
+        :param properties: A nested array of property values. Each record contains an array of parameters needed
+                           for the batch_put_asset_property_value API call.
+                           - string reference to local variable containing current value
+                           - datatype
+                           - property name
+        """
         # properties == [ [".MaltPV","double","Malt_PV"],...]
         for prop in properties:
             try:
@@ -97,16 +111,17 @@ if __name__ == "__main__":
                     entries=entries
                 )
             except Exception as e:
-                print(prop[0])
-                print(prop[1])
-                print(asset_name)
                 print(str(e))
-                time.sleep(1)
+                time.sleep(5)
 
     def publish_to_sitewise_thread():
+        """
+        publish_to_sitewise_thread - Thread function to publish values to IoT SiteWise on a continuous loop.
+
+        """
         # IoT SiteWise Publish event tracking
         lastpublishtime = datetime.datetime.now()
-        print("Starting publish to SiteWise thread...")
+        print("Publishing values to SiteWise")
         while True:
             #######################################################################
             # Publish values to IoT SiteWise if enabled and after interval time has elapsed
@@ -361,24 +376,15 @@ if __name__ == "__main__":
 
     # Parse parameters to start the simulation
     parser = argparse.ArgumentParser(description='Simulation Parameters')
-    parser.add_argument('--publishtositewise', dest='publishtositewise', type=bool, help='Publish to IoT SiteWise (default=false')
-    parser.add_argument('--interval', dest='interval', type=int, help='Interval in seconds to publish to IoT SiteWise (default=5)')
-    parser.add_argument('--region', dest='region', type=str, help='AWS Region to publish to (default=us-east-1)')
+    parser.add_argument('--publishtositewise', dest='publishtositewise', default='False', choices=('True','False'), help='Publish to IoT SiteWise (default=False)')
+    parser.add_argument('--interval', dest='interval', default=5, type=int, help='Interval in seconds to publish to IoT SiteWise (default=5)')
+    parser.add_argument('--region', dest='region', default="us-west-2", type=str, help='AWS Region to publish to (default=us-west-2)')
 
     args = parser.parse_args()
 
-    publishtositewise = False
-    if(args.publishtositewise == True):
-       publishtositewise = args.publishtositewise
-
-    interval = 5    
-    if(args.interval > 0):
-        interval = int(args.interval)
-
-    region = "us-east-1"
-    if(len(args.region)>0):
-        region = args.region
-    
+    publishtositewise = args.publishtositewise == 'True'
+    interval = int(args.interval)
+    region = args.region
     
     # Initailize IoT SiteWise Client connection
     client = boto3.client('iotsitewise', region_name=region)
@@ -388,8 +394,8 @@ if __name__ == "__main__":
     print("Started OPC server")
     ##############################################################################
     ############################## ATTENTION #####################################
-    # BEFORE RUNNING THIS PROGRAM, YOU MUST CHANGE THE BELOW IP TO YOUR SERVERS IP 
-    server.set_endpoint("opc.tcp://127.0.0.1:4841/server/")
+    ## This will bind to all IPs, but possible this may need to be specific for your client.
+    server.set_endpoint("opc.tcp://0.0.0.0:4841/server/")
     #############################################################################
     #############################################################################
     
@@ -1025,9 +1031,10 @@ if __name__ == "__main__":
     #server.start()    
 
     try:
-
-        t = threading.Thread(target=publish_to_sitewise_thread, args=())
-        t.start()
+        
+        if(publishtositewise):
+            t = threading.Thread(target=publish_to_sitewise_thread, args=())
+            t.start()
         
         while True:
 

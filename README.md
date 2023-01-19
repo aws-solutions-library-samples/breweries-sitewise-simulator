@@ -6,7 +6,7 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 
  - Example Command to publish data to IoT SiteWise every 5 seconds to us-west-2:
       ```
-      python3 awsBrewSimServer.py --publishtositewise 1 --interval 5 --region us-west-2
+      python3 awsBrewSimServer.py --publishtositewise=True --interval=5 --region=us-west-2
 
       ```
 
