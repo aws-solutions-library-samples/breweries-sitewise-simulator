@@ -4,6 +4,8 @@
 
 Amazonian Breweries is a Python based program to exercise the capabilities of IoT SiteWise (Monitor), IoT Greengrass, IoT TwinMaker, and other IoT based AWS services that constantly runs and produces factory like data exposed via an OPC UA Server (a cross-platform, open-source, IEC62541 standard for data exchange from sensors to cloud applications developed by the OPC Foundation) for consumption by an OPC UA Client (like the IoT SiteWise OPC UA Collector). 
 
+python3 awsBrewSimServer.py --publishtositewise 1 --interval 5 --region us-west-2
+
 ## Prerequisites
 
 1. Create a server environment (Linux, Windows, or macOS) to host the Amazonian Breweries OPC UA Server Python program.

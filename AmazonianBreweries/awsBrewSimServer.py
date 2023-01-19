@@ -3,17 +3,20 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
 #----------------------------------------------------------------------------
-# Created By  : Nick Santucci @nictooch
-# Created Date: February 14 2022 
-# version ='1.0.0'
+# Created By  : Nick Santucci, Chris Azer, Tim Wilson
+# Created Date: January 18 2023
+# version ='1.1.0'
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
 # Amazonian Breweries is a program to exercise the capabilities
 # of IoT SiteWise (Monitor), IoT Greengrass, IoT TwinMaker, and other IoT 
-# based AWS services that constantly runs and produces factory like data exposed
-# via an OPC UA Server for OPC UA Clients (i.e. IoT SiteWise Connector on IoT Greengrass) 
-# consumption and analytics in the AWS Cloud.
+# based AWS services that constantly runs and produces factory like data.
+#
+# This program serves as a data simulation and is not recommended for any production 
+# environment. Data is exposed via an OPC UA Server for OPC UA Clients 
+# (i.e. IoT SiteWise Connector on IoT Greengrass). In addition, values can be
+# published directly to IoT SiteWise at a default interval of 5 seconds.
 #
 # This program serves as a data simulation and is not recommended for any production 
 # environment.    
@@ -23,6 +26,7 @@
 # Imports
 # ---------------------------------------------------------------------------
 import time
+import datetime
 from Timer import Timer
 from Roaster import Roaster
 from MaltMill import MaltMill
@@ -32,11 +36,16 @@ from Fermenter import Fermenter
 from BrightTank import BrightTank
 from BottleLine import BottleLine
 from GlobalVariables import NewStateEnum, NewStatusEnum
+import boto3
+import argparse
+import threading
+
 
 #########################################################################
 # OPC UA Library provided by - https://github.com/FreeOpcUa/python-opcua
 from opcua import Server, ua
 #########################################################################
+
 
 if __name__ == "__main__":     
 
@@ -61,17 +70,333 @@ if __name__ == "__main__":
 
     """   
 
+    def publish_properties_to_sitewise(area_name, asset_name, timeInSeconds, properties):
+        # properties == [ [".MaltPV","double","Malt_PV"],...]
+        for prop in properties:
+            try:
+                entries = []
+                entries=[
+                        {
+                            'entryId': '{}{}'.format(prop[2],int(time.time())),
+                            'propertyAlias': "/{}/{}/{}/{}/{}".format(enterprise_name,plant_name,area_name,asset_name,prop[2]),
+                            'propertyValues': [
+                                {
+                                    'value': {
+                                        prop[1]+'Value': eval(asset_name+prop[0])
+                                    },
+                                    'timestamp': {
+                                        'timeInSeconds': timeInSeconds,
+                                        'offsetInNanos': 0
+                                    },
+                                    'quality': 'GOOD'
+                                },
+                            ]
+                        },
+                    ]
+                response = client.batch_put_asset_property_value(
+                    entries=entries
+                )
+            except Exception as e:
+                print(prop[0])
+                print(prop[1])
+                print(asset_name)
+                print(str(e))
+                time.sleep(1)
+
+    def publish_to_sitewise_thread():
+        # IoT SiteWise Publish event tracking
+        lastpublishtime = datetime.datetime.now()
+        print("Starting publish to SiteWise thread...")
+        while True:
+            #######################################################################
+            # Publish values to IoT SiteWise if enabled and after interval time has elapsed
+            #######################################################################
+            if((datetime.datetime.now()-lastpublishtime).total_seconds()  >= interval):
+                timeInSeconds = int(datetime.datetime.now().timestamp())
+                # Roasters
+                roaster_properties = [
+                    [".MaltPV","double", "Malt_PV"],
+                    [".MaltPV", "double", "Malt_PV"],
+                    [".MaltSP", "integer", "Malt_SP"],
+                    [".TemperaturePV", "double", "Temperature_PV"],
+                    [".TemperatureSP", "integer", "Temperature_SP"],
+                    [".HoldTime.PT", "integer", "HoldTime_PT"],
+                    [".HoldTime.ET", "integer", "HoldTime_ET"],
+                    [".NewState", "string", "State"],
+                    [".NewStatus", "string", "Status"],
+                    [".MaterialID", "string", "MaterialID"],
+                    [".ProductionID", "string", "ProductionID"],
+                    [".Cons_RawBarley_Item", "string", "Cons_RawBarley_Item"],
+                    [".Cons_RawBarley_FromLot", "string", "Cons_RawBarley_FromLot"],
+                    [".Prod_RoastedBarley_ToLot", "string", "Prod_RoastedBarley_ToLot"],
+                    [".Prod_RoastedBarley_Item", "string", "Prod_RoastedBarley_Item"],
+                    [".UtilizationState", "string", "UtilizationState"],
+                    [".Utilization", "string", "Utilization"],
+                    [".MaltAuger.PV", "string", "MaltAuger_PV"],
+                    [".MaltAuger.AuxContact", "boolean", "MaltAuger_AuxContact"],
+                    [".Scrap", "double", "Scrap"]
+                ]
+                publish_properties_to_sitewise("Roasting", "Roaster100", timeInSeconds, roaster_properties)
+                publish_properties_to_sitewise("Roasting", "Roaster200", timeInSeconds, roaster_properties)  
+
+                # MaltMills
+                maltmill_properties = [
+                    [".MaltPV", "double", "Malt_PV"],
+                    [".MaltSP", "double", "Malt_SP"],
+                    [".MaltAuger.AuxContact", "boolean", "MaltAuger_AuxContact"],
+                    [".MaltAuger.PV", "string", "MaltAuger_PV"],
+                    [".MaltMill.AuxContact", "boolean", "MaltMill_AuxContact"],
+                    [".MaltMill.PV", "string", "MaltMill_PV"],
+                    [".NewState", "string", "State"]
+                ]
+                publish_properties_to_sitewise("Mashing", "MaltMill100", timeInSeconds, maltmill_properties)
+                publish_properties_to_sitewise("Mashing", "MaltMill200", timeInSeconds, maltmill_properties)
+
+                # MashTuns
+                mashtun_properties = [
+                    [".Agitator.AuxContact", "boolean", "Agitator_AuxContact"],
+                    [".Agitator.PV", "string", "Agitator_PV"],
+                    [".Cons_Malt_FromLot", "string", "Cons_Malt_FromLot"],
+                    [".Cons_Malt_Item", "string", "Cons_Malt_Item"],
+                    [".HoldTime.PT", "integer", "HoldTime_PT"],
+                    [".HoldTime.ET", "integer", "HoldTime_ET"],
+                    [".LevelPV", "double", "Level_PV"],
+                    [".MaterialID", "string", "MaterialID"],
+                    [".NewState", "string", "State"],
+                    [".NewStatus", "string", "Status"],
+                    [".OutletPump.AuxContact", "boolean", "OutletPump_AuxContact"],
+                    [".OutletPump.PV", "string", "OutletPump_PV"],
+                    [".OutletValve.CLS", "boolean", "OutletValve_CLS"],
+                    [".OutletValve.OLS", "boolean", "OutletValve_OLS"],
+                    [".OutletValve.PV", "string", "OutletValve_PV"],
+                    [".Prod_Wort_Item", "string", "Prod_Wort_Item"],
+                    [".Prod_Wort_ToLot", "string", "Prod_Wort_ToLot"],
+                    [".ProductionID", "string", "ProductionID"],
+                    [".Scrap", "double", "Scrap"],
+                    [".Scrap_ToLot", "string", "Scrap_ToLot"],
+                    [".ShipComplete", "boolean", "ShipComplete"],
+                    [".SoakTempSP1", "integer", "SoakTempSP1"],
+                    [".SoakTempSP2", "integer", "SoakTempSP2"],
+                    [".SoakTimeSP1", "integer", "SoakTimeSP1"],
+                    [".SoakTimeSP2", "integer", "SoakTimeSP2"],
+                    [".SteamValve.CLS", "boolean", "SteamValve_CLS"],
+                    [".SteamValve.OLS", "boolean", "SteamValve_OLS"],
+                    [".SteamValve.PV", "string", "SteamValve_PV"],
+                    [".TemperaturePV", "double", "Temperature_PV"],
+                    [".TemperatureSP", "integer", "Temperature_SP"],
+                    [".UtilizationState", "string", "UtilizationState"],
+                    [".Utilization", "string", "Utilization"],
+                    [".WaterPV", "double", "Water_PV"],
+                    [".WaterSP", "integer", "Water_SP"],
+                    [".WaterValve.CLS", "boolean", "WaterValve_CLS"],
+                    [".WaterValve.OLS", "boolean", "WaterValve_OLS"],
+                    [".WaterValve.PV", "string", "WaterValve_PV"],
+                    [".Wort_Item", "string", "Wort_Item"],
+                    [".WortPV", "double", "Wort_PV"]
+                ]
+                publish_properties_to_sitewise("Mashing", "MashTun100", timeInSeconds, mashtun_properties)
+                publish_properties_to_sitewise("Mashing", "MashTun200", timeInSeconds, mashtun_properties)
+                
+                # BoilKettles
+                boilkettle_properties = [
+                    [".Cons_Hops_FromLot", "string", "Cons_Hops_FromLot"],                  
+                    [".Cons_Hops_Item", "string", "Cons_Hops_Item"],  
+                    [".Cons_Wort_FromLot", "string", "Cons_Wort_FromLot"],  
+                    [".Cons_Wort_Item", "string", "Cons_Wort_Item"],  
+                    [".HoldTime.PT", "integer", "HoldTime_PT"],  
+                    [".HoldTime.ET", "integer", "HoldTime_ET"],  
+                    [".LevelPV", "double", "Level_PV"],  
+                    [".MaterialID", "string", "MaterialID"],  
+                    [".NewState", "string", "State"],  
+                    [".NewStatus", "string", "Status"],  
+                    [".OutletPump.AuxContact", "boolean", "OutletPump_AuxContact"],  
+                    [".OutletPump.PV", "string", "OutletPump_PV"],  
+                    [".InletValve.CLS", "boolean", "InletValve_CLS"],  
+                    [".InletValve.OLS", "boolean", "InletValve_OLS"],  
+                    [".InletValve.PV", "string", "InletValve_PV"],  
+                    [".OutletValve.CLS", "boolean", "OutletValve_CLS"],  
+                    [".OutletValve.OLS", "boolean", "OutletValve_OLS"],  
+                    [".OutletValve.PV", "string", "OutletValve_PV"],  
+                    [".Prod_BrewedWort_Item", "string", "Prod_BrewedWort_Item"],  
+                    [".Prod_BrewedWort_ToLot", "string", "Prod_BrewedWort_ToLot"],  
+                    [".ProductionID", "string", "ProductionID"],  
+                    [".Scrap", "double", "Scrap"],  
+                    [".SteamValve.CLS", "boolean", "SteamValve_CLS"],  
+                    [".SteamValve.OLS", "boolean", "SteamValve_OLS"],  
+                    [".SteamValve.PV", "string", "SteamValve_PV"],  
+                    [".TemperaturePV", "double", "Temperature_PV"],  
+                    [".TemperatureSP", "integer", "Temperature_SP"],  
+                    [".UtilizationState", "string", "UtilizationState"],  
+                    [".Utilization", "string", "Utilization"],  
+                    [".HopsAuger.AuxContact", "boolean", "HopsAuger_AuxContact"],  
+                    [".HopsAuger.PV", "string", "HopsAuger_PV"],  
+                    [".WortPV", "double", "Wort_PV"],  
+                    [".HopsPV", "double", "Hops_PV"],  
+                    [".HopsSP", "double", "Hops_SP"],  
+                    [".BrewedWortPV", "double", "BrewedWort_PV"]
+                ]
+                publish_properties_to_sitewise("Brewing", "BoilKettle100", timeInSeconds, boilkettle_properties)
+                publish_properties_to_sitewise("Brewing", "BoilKettle200", timeInSeconds, boilkettle_properties)      
+
+                    
+                # Fermenters
+                fermenter_properties = [
+                    [".ChillWaterValve.CLS", "boolean", "ChillWaterValve_CLS"],                
+                    [".ChillWaterValve.OLS", "boolean", "ChillWaterValve_OLS"],
+                    [".ChillWaterValve.PV", "string", "ChillWaterValve_CLS"],
+                    [".Cons_BrewedWort_FromLot", "string", "Cons_BrewedWort_FromLot"],
+                    [".Cons_BrewedWort_Item", "string", "Cons_BrewedWort_Item"],
+                    [".Cons_Yeast_FromLot", "string", "Cons_Yeast_FromLot"],
+                    [".Cons_Yeast_Item", "string", "Cons_Yeast_Item"],
+                    [".HoldTime.PT", "integer", "HoldTime_PT"],
+                    [".HoldTime.ET", "integer", "HoldTime_ET"],
+                    [".LevelPV", "double", "Level_PV"],
+                    [".MaterialID", "string", "MaterialID"],
+                    [".NewState", "string", "State"],
+                    [".NewStatus", "string", "Status"],
+                    [".InletValve.CLS", "boolean", "InletValve_CLS"],
+                    [".InletValve.OLS", "boolean", "InletValve_OLS"],
+                    [".InletValve.PV", "string", "InletValve_PV"],
+                    [".OutletPump.AuxContact", "boolean", "OutletPump_AuxContact"],
+                    [".OutletPump.PV", "string", "OutletPump_PV"],
+                    [".OutletValve.CLS", "boolean", "OutletValve_CLS"],
+                    [".OutletValve.OLS", "boolean", "OutletValve_OLS"],
+                    [".Prod_GreenBeer_Item", "string", "Prod_GreenBeer_Item"],
+                    [".Prod_GreenBeer_ToLot", "string", "Prod_GreenBeer_ToLot"],
+                    [".ProductionID", "string", "ProductionID"],
+                    [".Scrap", "double", "Scrap"],
+                    [".ShipTo_Tank", "integer", "ShipTo_Tank"],
+                    [".TemperaturePV", "double", "Temperature_PV"],
+                    [".TemperatureSP", "integer", "Temperature_SP"],
+                    [".UtilizationState", "string", "UtilizationState"],
+                    [".Utilization", "string", "Utilization"],
+                    [".YeastPV", "double", "Yeast_PV"],
+                    [".YeastSP", "double", "Yeast_SP"],
+                    [".YeastPump.AuxContact", "boolean", "YeastPump_AuxContact"],
+                    [".YeastPump.PV", "string", "YeastPump_PV"],
+                    [".GreenBeerPV", "double", "GreenBeer_PV"]
+                ]
+                publish_properties_to_sitewise("Fermentation", "Fermenter100", timeInSeconds, fermenter_properties)
+                publish_properties_to_sitewise("Fermentation", "Fermenter200", timeInSeconds, fermenter_properties)
+                
+
+                # Bright Tank 301
+                tanks_properties = [
+                    [".AllocatedFrom", "integer", "AllocatedFrom"],                
+                    [".ChillWaterValve.CLS", "boolean", "ChillWaterValve_CLS"],
+                    [".ChillWaterValve.OLS", "boolean", "ChillWaterValve_OLS"],
+                    [".ChillWaterValve.PV", "string", "ChillWaterValve_PV"],
+                    [".Cons_GreenBeer_FromLot", "string", "Cons_GreenBeer_FromLot"],
+                    [".Cons_GreenBeer_Item", "string", "Cons_GreenBeer_Item"],
+                    [".HoldTime.PT", "integer", "HoldTime_PT"],
+                    [".HoldTime.ET", "integer", "HoldTime_ET"],
+                    [".LevelPV", "double", "Level_PV"],
+                    [".MaterialID", "string", "MaterialID"],
+                    [".NewState", "string", "State"],
+                    [".NewStatus", "string", "Status"],
+                    [".BeerPV", "double", "Beer_PV"],
+                    [".BeerSP", "double", "Beer_SP"],
+                    [".InletValve.CLS", "boolean", "InletValve_CLS"],
+                    [".InletValve.OLS", "boolean", "InletValve_OLS"],
+                    [".InletValve.PV", "string", "InletValve_PV"],
+                    [".OutletPump.AuxContact", "boolean", "OutletPump_AuxContact"],
+                    [".OutletPump.PV", "string", "OutletPump_PV"],
+                    [".OutletValve.CLS", "boolean", "OutletValve_CLS"],
+                    [".OutletValve.OLS", "boolean", "OutletValve_OLS"],
+                    [".OutletValve.PV", "string", "OutletValve_PV"],
+                    [".Prod_Beer_Item", "string", "Prod_Beer_Item"],
+                    [".Prod_Beer_ToLot", "string", "Prod_Beer_ToLot"],
+                    [".ProductionID", "string", "ProductionID"],
+                    [".TemperaturePV", "double", "Temperature_PV"],
+                    [".TemperatureSP", "integer", "Temperature_SP"],
+                    [".UtilizationState", "string", "UtilizationState"],
+                    [".Utilization", "string", "Utilization"],
+                    [".BeerShipped", "double", "BeerShipped"],
+                    [".ShipToTank", "integer", "ShipTo_Tank"]
+                ]
+                publish_properties_to_sitewise("BeerStorage", "BrightTank301", timeInSeconds, tanks_properties)
+                publish_properties_to_sitewise("BeerStorage", "BrightTank302", timeInSeconds, tanks_properties)
+                publish_properties_to_sitewise("BeerStorage", "BrightTank303", timeInSeconds, tanks_properties)
+                publish_properties_to_sitewise("BeerStorage", "BrightTank304", timeInSeconds, tanks_properties)
+                publish_properties_to_sitewise("BeerStorage", "BrightTank305", timeInSeconds, tanks_properties)        
+                
+
+                # BottlingLines
+                bottling_properties = [
+                    [".AllocatedFrom", "integer", "AllocatedFrom"],
+                    [".BeerPV", "double", "Beer_PV"],
+                    [".BottlePV", "double", "Bottle_PV"],
+                    [".BottleSP", "double", "Bottle_SP"],
+                    [".Cons_Beer_FromLot", "string", "Cons_Beer_FromLot"],  
+                    [".Cons_Beer_Item", "string", "Cons_Beer_Item"],
+                    [".Cons_Bottle_FromLot", "string", "Cons_Bottle_FromLot"],
+                    [".Cons_Bottle_Item", "string", "Cons_Bottle_Item"],
+                    [".Cons_Cap_FromLot", "string", "Cons_Cap_FromLot"],
+                    [".Cons_Cap_Item", "string", "Cons_Cap_Item"],
+                    [".Cons_Label_FromLot", "string", "Cons_Label_FromLot"],
+                    [".Cons_Label_Item", "string", "Cons_Label_Item"],
+                    [".LevelPV", "double", "Level_PV"],
+                    [".MaterialID", "string", "MaterialID"],
+                    [".Prod_BottledBeer_Item", "string", "Prod_BottledBeer_Item"],
+                    [".Prod_BottledBeer_ToLot", "string", "Prod_BottledBeer_ToLot"],
+                    [".ProductionID", "string", "ProductionID"],
+                    [".TemperaturePV", "double", "Temperature_PV"],
+                    [".TemperatureSP", "integer", "Temperature_SP"],
+                    [".HoldTime.PT", "integer", "HoldTime_PT"],
+                    [".HoldTime.ET", "integer", "HoldTime_ET"],
+                    [".NewState", "string", "State"],
+                    [".NewStatus", "string", "Status"],
+                    [".UtilizationState", "string", "UtilizationState"],
+                    [".Utilization", "string", "Utilization"],
+                    [".Scrap", "double", "Scrap"],
+                    [".SpeedPV", "double", "Speed_PV"],
+                    [".SpeedSP", "integer", "Speed_SP"]    
+                ]
+                publish_properties_to_sitewise("Bottling", "BottleLine401", timeInSeconds, bottling_properties)        
+                publish_properties_to_sitewise("Bottling", "BottleLine402", timeInSeconds, bottling_properties)        
+                publish_properties_to_sitewise("Bottling", "BottleLine403", timeInSeconds, bottling_properties)        
+
+                # reset interval
+                lastpublishtime = datetime.datetime.now()
+
+    # Parse parameters to start the simulation
+    parser = argparse.ArgumentParser(description='Simulation Parameters')
+    parser.add_argument('--publishtositewise', dest='publishtositewise', type=bool, help='Publish to IoT SiteWise (default=false')
+    parser.add_argument('--interval', dest='interval', type=int, help='Interval in seconds to publish to IoT SiteWise (default=5)')
+    parser.add_argument('--region', dest='region', type=str, help='AWS Region to publish to (default=us-east-1)')
+
+    args = parser.parse_args()
+
+    publishtositewise = False
+    if(args.publishtositewise == True):
+       publishtositewise = args.publishtositewise
+
+    interval = 5    
+    if(args.interval > 0):
+        interval = int(args.interval)
+
+    region = "us-east-1"
+    if(len(args.region)>0):
+        region = args.region
+    
+    
+    # Initailize IoT SiteWise Client connection
+    client = boto3.client('iotsitewise', region_name=region)
+    
     # Initailize OPC UA Server
     server = Server()        
-
+    print("Started OPC server")
     ##############################################################################
     ############################## ATTENTION #####################################
     # BEFORE RUNNING THIS PROGRAM, YOU MUST CHANGE THE BELOW IP TO YOUR SERVERS IP 
-    server.set_endpoint("opc.tcp://192.168.0.16:4841/server/")
+    server.set_endpoint("opc.tcp://127.0.0.1:4841/server/")
     #############################################################################
     #############################################################################
-
-    server.set_server_name("OPCUA_AmazonianBreweries_Server")
+    
+    enterprise_name = "AmazonBreweries"
+    plant_name = "IrvinePlant"
+    opc_server_name = "OPCUA_{}_Server".format(enterprise_name)
+    server.set_server_name(opc_server_name)
 
     # set all possible endpoint policies for clients to connect through
     server.set_security_policy([
@@ -79,14 +404,13 @@ if __name__ == "__main__":
                 ua.SecurityPolicyType.Basic256Sha256_SignAndEncrypt,
                 ua.SecurityPolicyType.Basic256Sha256_Sign])
 
-    name = "OPCUA_AmazonianBreweries_Server"
-    addspace = server.register_namespace(name)
-
+    addspace = server.register_namespace(opc_server_name)
+    
     node = server.get_objects_node()
 
     # Build Enterprise->Site->Area->Asset Hierarchy
-    Enterprise = node.add_object(addspace, "AmazonianBreweries")
-    Site = Enterprise.add_object(addspace, "TampaPlant")
+    Enterprise = node.add_object(addspace, enterprise_name)
+    Site = Enterprise.add_object(addspace, plant_name)
     # Create Roasting area and add roasting assets
     RoastingArea = Site.add_object(addspace, "Roasting")
     AssetRoaster100 = RoastingArea.add_object(addspace, "Roaster100")
@@ -95,8 +419,8 @@ if __name__ == "__main__":
     MashingArea = Site.add_object(addspace, "Mashing")
     AssetMaltMill100 = MashingArea.add_object(addspace, "MaltMill100")    
     AssetMaltMill200 = MashingArea.add_object(addspace, "MaltMill200")
-    AssetMash100 = MashingArea.add_object(addspace, "MashTun100")
-    AssetMash200 = MashingArea.add_object(addspace, "MashTun200")  
+    AssetMashTun100 = MashingArea.add_object(addspace, "MashTun100")
+    AssetMashTun200 = MashingArea.add_object(addspace, "MashTun200")  
     # Create Brewing area and add brewing assets    
     BrewingArea = Site.add_object(addspace, "Brewing")
     AssetBoilKettle100 = BrewingArea.add_object(addspace, "BoilKettle100")
@@ -172,45 +496,45 @@ if __name__ == "__main__":
     MM100_State = AssetMaltMill100.add_variable(addspace, "State", 0, ua.VariantType.String)
 
      # Create new OPC data items for Mash Tun 100
-    M100_Agitator_AuxContact = AssetMash100.add_variable(addspace, "Agitator_AuxContact", 0, ua.VariantType.Boolean)
-    M100_Agitator_PV = AssetMash100.add_variable(addspace, "Agitator_PV", 0, ua.VariantType.String)
-    M100_Cons_Malt_FromLot = AssetMash100.add_variable(addspace, "Cons_Malt_FromLot", 0, ua.VariantType.String)
-    M100_Cons_Malt_Item = AssetMash100.add_variable(addspace, "Cons_Malt_Item", 0, ua.VariantType.String)
-    M100_HoldTime_PT = AssetMash100.add_variable(addspace, "HoldTime_PT", 0, ua.VariantType.Int64)
-    M100_HoldTime_ET = AssetMash100.add_variable(addspace, "HoldTime_ET", 0, ua.VariantType.Int64)
-    M100_Level_PV = AssetMash100.add_variable(addspace, "Level_PV", 0, ua.VariantType.Double)
-    M100_MaterialID = AssetMash100.add_variable(addspace, "MaterialID", 0, ua.VariantType.String)
-    M100_State = AssetMash100.add_variable(addspace, "State", 0, ua.VariantType.String)
-    M100_Status = AssetMash100.add_variable(addspace, "Status", 0, ua.VariantType.String)
-    M100_OutletPump_AuxContact = AssetMash100.add_variable(addspace, "OutletPump_AuxContact", 0, ua.VariantType.Boolean)
-    M100_OutletPump_PV = AssetMash100.add_variable(addspace, "OutletPump_PV", 0, ua.VariantType.String)
-    M100_OutletValve_CLS = AssetMash100.add_variable(addspace, "OutletValve_CLS", 0, ua.VariantType.Boolean)
-    M100_OutletValve_OLS = AssetMash100.add_variable(addspace, "OutletValve_OLS", 0, ua.VariantType.Boolean)
-    M100_OutletValve_PV = AssetMash100.add_variable(addspace, "OutletValve_PV", 0, ua.VariantType.String)
-    M100_Prod_Wort_Item = AssetMash100.add_variable(addspace, "Prod_Wort_Item", 0, ua.VariantType.String)
-    M100_Prod_Wort_ToLot = AssetMash100.add_variable(addspace, "Prod_Wort_ToLot", 0, ua.VariantType.String)
-    M100_ProductionID = AssetMash100.add_variable(addspace, "ProductionID", 0, ua.VariantType.String)
-    M100_Scrap = AssetMash100.add_variable(addspace, "Scrap", 0, ua.VariantType.Double)
-    M100_Scrap_ToLot = AssetMash100.add_variable(addspace, "Scrap_ToLot", 0, ua.VariantType.String)
-    M100_ShipComplete = AssetMash100.add_variable(addspace, "ShipComplete", 0, ua.VariantType.Boolean)
-    M100_SoakTempSP1 = AssetMash100.add_variable(addspace, "SoakTempSP1", 0, ua.VariantType.Int64)
-    M100_SoakTempSP2 = AssetMash100.add_variable(addspace, "SoakTempSP2", 0, ua.VariantType.Int64)
-    M100_SoakTimeSP1 = AssetMash100.add_variable(addspace, "SoakTimeSP1", 0, ua.VariantType.Int64)
-    M100_SoakTimeSP2 = AssetMash100.add_variable(addspace, "SoakTimeSP2", 0, ua.VariantType.Int64)
-    M100_SteamValve_CLS = AssetMash100.add_variable(addspace, "SteamValve_CLS", 0, ua.VariantType.Boolean)
-    M100_SteamValve_OLS = AssetMash100.add_variable(addspace, "SteamValve_OLS", 0, ua.VariantType.Boolean)
-    M100_SteamValve_PV = AssetMash100.add_variable(addspace, "SteamValve_PV", 0, ua.VariantType.String)
-    M100_Temperature_PV = AssetMash100.add_variable(addspace, "Temperature_PV", 0, ua.VariantType.Double)
-    M100_Temperature_SP = AssetMash100.add_variable(addspace, "Temperature_SP", 0, ua.VariantType.Int64)
-    M100_UtilizationState = AssetMash100.add_variable(addspace, "UtilizationState", 0, ua.VariantType.String) 
-    M100_Utilization = AssetMash100.add_variable(addspace, "Utilization", 0, ua.VariantType.String)
-    M100_Water_PV = AssetMash100.add_variable(addspace, "Water_PV", 0, ua.VariantType.Double)
-    M100_Water_SP = AssetMash100.add_variable(addspace, "Water_SP", 0, ua.VariantType.Int64)
-    M100_WaterValve_CLS = AssetMash100.add_variable(addspace, "WaterValve_CLS", 0, ua.VariantType.Boolean)
-    M100_WaterValve_OLS = AssetMash100.add_variable(addspace, "WaterValve_OLS", 0, ua.VariantType.Boolean)
-    M100_WaterValve_PV = AssetMash100.add_variable(addspace, "WaterValve_PV", 0, ua.VariantType.String)
-    M100_Wort_Item = AssetMash100.add_variable(addspace, "Wort_Item", 0, ua.VariantType.String)
-    M100_Wort_PV = AssetMash100.add_variable(addspace, "Wort_PV", 0, ua.VariantType.Double)
+    M100_Agitator_AuxContact = AssetMashTun100.add_variable(addspace, "Agitator_AuxContact", 0, ua.VariantType.Boolean)
+    M100_Agitator_PV = AssetMashTun100.add_variable(addspace, "Agitator_PV", 0, ua.VariantType.String)
+    M100_Cons_Malt_FromLot = AssetMashTun100.add_variable(addspace, "Cons_Malt_FromLot", 0, ua.VariantType.String)
+    M100_Cons_Malt_Item = AssetMashTun100.add_variable(addspace, "Cons_Malt_Item", 0, ua.VariantType.String)
+    M100_HoldTime_PT = AssetMashTun100.add_variable(addspace, "HoldTime_PT", 0, ua.VariantType.Int64)
+    M100_HoldTime_ET = AssetMashTun100.add_variable(addspace, "HoldTime_ET", 0, ua.VariantType.Int64)
+    M100_Level_PV = AssetMashTun100.add_variable(addspace, "Level_PV", 0, ua.VariantType.Double)
+    M100_MaterialID = AssetMashTun100.add_variable(addspace, "MaterialID", 0, ua.VariantType.String)
+    M100_State = AssetMashTun100.add_variable(addspace, "State", 0, ua.VariantType.String)
+    M100_Status = AssetMashTun100.add_variable(addspace, "Status", 0, ua.VariantType.String)
+    M100_OutletPump_AuxContact = AssetMashTun100.add_variable(addspace, "OutletPump_AuxContact", 0, ua.VariantType.Boolean)
+    M100_OutletPump_PV = AssetMashTun100.add_variable(addspace, "OutletPump_PV", 0, ua.VariantType.String)
+    M100_OutletValve_CLS = AssetMashTun100.add_variable(addspace, "OutletValve_CLS", 0, ua.VariantType.Boolean)
+    M100_OutletValve_OLS = AssetMashTun100.add_variable(addspace, "OutletValve_OLS", 0, ua.VariantType.Boolean)
+    M100_OutletValve_PV = AssetMashTun100.add_variable(addspace, "OutletValve_PV", 0, ua.VariantType.String)
+    M100_Prod_Wort_Item = AssetMashTun100.add_variable(addspace, "Prod_Wort_Item", 0, ua.VariantType.String)
+    M100_Prod_Wort_ToLot = AssetMashTun100.add_variable(addspace, "Prod_Wort_ToLot", 0, ua.VariantType.String)
+    M100_ProductionID = AssetMashTun100.add_variable(addspace, "ProductionID", 0, ua.VariantType.String)
+    M100_Scrap = AssetMashTun100.add_variable(addspace, "Scrap", 0, ua.VariantType.Double)
+    M100_Scrap_ToLot = AssetMashTun100.add_variable(addspace, "Scrap_ToLot", 0, ua.VariantType.String)
+    M100_ShipComplete = AssetMashTun100.add_variable(addspace, "ShipComplete", 0, ua.VariantType.Boolean)
+    M100_SoakTempSP1 = AssetMashTun100.add_variable(addspace, "SoakTempSP1", 0, ua.VariantType.Int64)
+    M100_SoakTempSP2 = AssetMashTun100.add_variable(addspace, "SoakTempSP2", 0, ua.VariantType.Int64)
+    M100_SoakTimeSP1 = AssetMashTun100.add_variable(addspace, "SoakTimeSP1", 0, ua.VariantType.Int64)
+    M100_SoakTimeSP2 = AssetMashTun100.add_variable(addspace, "SoakTimeSP2", 0, ua.VariantType.Int64)
+    M100_SteamValve_CLS = AssetMashTun100.add_variable(addspace, "SteamValve_CLS", 0, ua.VariantType.Boolean)
+    M100_SteamValve_OLS = AssetMashTun100.add_variable(addspace, "SteamValve_OLS", 0, ua.VariantType.Boolean)
+    M100_SteamValve_PV = AssetMashTun100.add_variable(addspace, "SteamValve_PV", 0, ua.VariantType.String)
+    M100_Temperature_PV = AssetMashTun100.add_variable(addspace, "Temperature_PV", 0, ua.VariantType.Double)
+    M100_Temperature_SP = AssetMashTun100.add_variable(addspace, "Temperature_SP", 0, ua.VariantType.Int64)
+    M100_UtilizationState = AssetMashTun100.add_variable(addspace, "UtilizationState", 0, ua.VariantType.String) 
+    M100_Utilization = AssetMashTun100.add_variable(addspace, "Utilization", 0, ua.VariantType.String)
+    M100_Water_PV = AssetMashTun100.add_variable(addspace, "Water_PV", 0, ua.VariantType.Double)
+    M100_Water_SP = AssetMashTun100.add_variable(addspace, "Water_SP", 0, ua.VariantType.Int64)
+    M100_WaterValve_CLS = AssetMashTun100.add_variable(addspace, "WaterValve_CLS", 0, ua.VariantType.Boolean)
+    M100_WaterValve_OLS = AssetMashTun100.add_variable(addspace, "WaterValve_OLS", 0, ua.VariantType.Boolean)
+    M100_WaterValve_PV = AssetMashTun100.add_variable(addspace, "WaterValve_PV", 0, ua.VariantType.String)
+    M100_Wort_Item = AssetMashTun100.add_variable(addspace, "Wort_Item", 0, ua.VariantType.String)
+    M100_Wort_PV = AssetMashTun100.add_variable(addspace, "Wort_PV", 0, ua.VariantType.Double)
 
     # Create new OPC data items for MaltMill 200
     MM200_Malt_PV = AssetMaltMill200.add_variable(addspace, "Malt_PV", 0, ua.VariantType.Double)
@@ -222,45 +546,45 @@ if __name__ == "__main__":
     MM200_State = AssetMaltMill200.add_variable(addspace, "State", 0, ua.VariantType.String)
 
     # Create new OPC data items for Mash Tun 200
-    M200_Agitator_AuxContact = AssetMash200.add_variable(addspace, "Agitator_AuxContact", 0, ua.VariantType.Boolean)
-    M200_Agitator_PV = AssetMash200.add_variable(addspace, "Agitator_PV", 0, ua.VariantType.String)
-    M200_Cons_Malt_FromLot = AssetMash200.add_variable(addspace, "Cons_Malt_FromLot", 0, ua.VariantType.String)
-    M200_Cons_Malt_Item = AssetMash200.add_variable(addspace, "Cons_Malt_Item", 0, ua.VariantType.String)
-    M200_HoldTime_PT = AssetMash200.add_variable(addspace, "HoldTime_PT", 0, ua.VariantType.Int64)
-    M200_HoldTime_ET = AssetMash200.add_variable(addspace, "HoldTime_ET", 0, ua.VariantType.Int64)
-    M200_Level_PV = AssetMash200.add_variable(addspace, "Level_PV", 0, ua.VariantType.Double)
-    M200_MaterialID = AssetMash200.add_variable(addspace, "MaterialID", 0, ua.VariantType.String)
-    M200_State = AssetMash200.add_variable(addspace, "State", 0, ua.VariantType.String)
-    M200_Status = AssetMash200.add_variable(addspace, "Status", 0, ua.VariantType.String)
-    M200_OutletPump_AuxContact = AssetMash200.add_variable(addspace, "OutletPump_AuxContact", 0, ua.VariantType.Boolean)
-    M200_OutletPump_PV = AssetMash200.add_variable(addspace, "OutletPump_PV", 0, ua.VariantType.String)
-    M200_OutletValve_CLS = AssetMash200.add_variable(addspace, "OutletValve_CLS", 0, ua.VariantType.Boolean)
-    M200_OutletValve_OLS = AssetMash200.add_variable(addspace, "OutletValve_OLS", 0, ua.VariantType.Boolean)
-    M200_OutletValve_PV = AssetMash200.add_variable(addspace, "OutletValve_PV", 0, ua.VariantType.String)
-    M200_Prod_Wort_Item = AssetMash200.add_variable(addspace, "Prod_Wort_Item", 0, ua.VariantType.String)
-    M200_Prod_Wort_ToLot = AssetMash200.add_variable(addspace, "Prod_Wort_ToLot", 0, ua.VariantType.String)
-    M200_ProductionID = AssetMash200.add_variable(addspace, "ProductionID", 0, ua.VariantType.String)
-    M200_Scrap = AssetMash200.add_variable(addspace, "Scrap", 0, ua.VariantType.Double)
-    M200_Scrap_ToLot = AssetMash200.add_variable(addspace, "Scrap_ToLot", 0, ua.VariantType.String)
-    M200_ShipComplete = AssetMash200.add_variable(addspace, "ShipComplete", 0, ua.VariantType.Boolean)
-    M200_SoakTempSP1 = AssetMash200.add_variable(addspace, "SoakTempSP1", 0, ua.VariantType.Int64)
-    M200_SoakTempSP2 = AssetMash200.add_variable(addspace, "SoakTempSP2", 0, ua.VariantType.Int64)
-    M200_SoakTimeSP1 = AssetMash200.add_variable(addspace, "SoakTimeSP1", 0, ua.VariantType.Int64)
-    M200_SoakTimeSP2 = AssetMash200.add_variable(addspace, "SoakTimeSP2", 0, ua.VariantType.Int64)
-    M200_SteamValve_CLS = AssetMash200.add_variable(addspace, "SteamValve_CLS", 0, ua.VariantType.Boolean)
-    M200_SteamValve_OLS = AssetMash200.add_variable(addspace, "SteamValve_OLS", 0, ua.VariantType.Boolean)
-    M200_SteamValve_PV = AssetMash200.add_variable(addspace, "SteamValve_PV", 0, ua.VariantType.String)
-    M200_Temperature_PV = AssetMash200.add_variable(addspace, "Temperature_PV", 0, ua.VariantType.Double)
-    M200_Temperature_SP = AssetMash200.add_variable(addspace, "Temperature_SP", 0, ua.VariantType.Int64)
-    M200_UtilizationState = AssetMash200.add_variable(addspace, "UtilizationState", 0, ua.VariantType.String) 
-    M200_Utilization = AssetMash200.add_variable(addspace, "Utilization", 0, ua.VariantType.String)
-    M200_Water_PV = AssetMash200.add_variable(addspace, "Water_PV", 0, ua.VariantType.Double)
-    M200_Water_SP = AssetMash200.add_variable(addspace, "Water_SP", 0, ua.VariantType.Int64)
-    M200_WaterValve_CLS = AssetMash200.add_variable(addspace, "WaterValve_CLS", 0, ua.VariantType.Boolean)
-    M200_WaterValve_OLS = AssetMash200.add_variable(addspace, "WaterValve_OLS", 0, ua.VariantType.Boolean)
-    M200_WaterValve_PV = AssetMash200.add_variable(addspace, "WaterValve_PV", 0, ua.VariantType.String)
-    M200_Wort_Item = AssetMash200.add_variable(addspace, "Wort_Item", 0, ua.VariantType.String)
-    M200_Wort_PV = AssetMash200.add_variable(addspace, "Wort_PV", 0, ua.VariantType.Double)
+    M200_Agitator_AuxContact = AssetMashTun200.add_variable(addspace, "Agitator_AuxContact", 0, ua.VariantType.Boolean)
+    M200_Agitator_PV = AssetMashTun200.add_variable(addspace, "Agitator_PV", 0, ua.VariantType.String)
+    M200_Cons_Malt_FromLot = AssetMashTun200.add_variable(addspace, "Cons_Malt_FromLot", 0, ua.VariantType.String)
+    M200_Cons_Malt_Item = AssetMashTun200.add_variable(addspace, "Cons_Malt_Item", 0, ua.VariantType.String)
+    M200_HoldTime_PT = AssetMashTun200.add_variable(addspace, "HoldTime_PT", 0, ua.VariantType.Int64)
+    M200_HoldTime_ET = AssetMashTun200.add_variable(addspace, "HoldTime_ET", 0, ua.VariantType.Int64)
+    M200_Level_PV = AssetMashTun200.add_variable(addspace, "Level_PV", 0, ua.VariantType.Double)
+    M200_MaterialID = AssetMashTun200.add_variable(addspace, "MaterialID", 0, ua.VariantType.String)
+    M200_State = AssetMashTun200.add_variable(addspace, "State", 0, ua.VariantType.String)
+    M200_Status = AssetMashTun200.add_variable(addspace, "Status", 0, ua.VariantType.String)
+    M200_OutletPump_AuxContact = AssetMashTun200.add_variable(addspace, "OutletPump_AuxContact", 0, ua.VariantType.Boolean)
+    M200_OutletPump_PV = AssetMashTun200.add_variable(addspace, "OutletPump_PV", 0, ua.VariantType.String)
+    M200_OutletValve_CLS = AssetMashTun200.add_variable(addspace, "OutletValve_CLS", 0, ua.VariantType.Boolean)
+    M200_OutletValve_OLS = AssetMashTun200.add_variable(addspace, "OutletValve_OLS", 0, ua.VariantType.Boolean)
+    M200_OutletValve_PV = AssetMashTun200.add_variable(addspace, "OutletValve_PV", 0, ua.VariantType.String)
+    M200_Prod_Wort_Item = AssetMashTun200.add_variable(addspace, "Prod_Wort_Item", 0, ua.VariantType.String)
+    M200_Prod_Wort_ToLot = AssetMashTun200.add_variable(addspace, "Prod_Wort_ToLot", 0, ua.VariantType.String)
+    M200_ProductionID = AssetMashTun200.add_variable(addspace, "ProductionID", 0, ua.VariantType.String)
+    M200_Scrap = AssetMashTun200.add_variable(addspace, "Scrap", 0, ua.VariantType.Double)
+    M200_Scrap_ToLot = AssetMashTun200.add_variable(addspace, "Scrap_ToLot", 0, ua.VariantType.String)
+    M200_ShipComplete = AssetMashTun200.add_variable(addspace, "ShipComplete", 0, ua.VariantType.Boolean)
+    M200_SoakTempSP1 = AssetMashTun200.add_variable(addspace, "SoakTempSP1", 0, ua.VariantType.Int64)
+    M200_SoakTempSP2 = AssetMashTun200.add_variable(addspace, "SoakTempSP2", 0, ua.VariantType.Int64)
+    M200_SoakTimeSP1 = AssetMashTun200.add_variable(addspace, "SoakTimeSP1", 0, ua.VariantType.Int64)
+    M200_SoakTimeSP2 = AssetMashTun200.add_variable(addspace, "SoakTimeSP2", 0, ua.VariantType.Int64)
+    M200_SteamValve_CLS = AssetMashTun200.add_variable(addspace, "SteamValve_CLS", 0, ua.VariantType.Boolean)
+    M200_SteamValve_OLS = AssetMashTun200.add_variable(addspace, "SteamValve_OLS", 0, ua.VariantType.Boolean)
+    M200_SteamValve_PV = AssetMashTun200.add_variable(addspace, "SteamValve_PV", 0, ua.VariantType.String)
+    M200_Temperature_PV = AssetMashTun200.add_variable(addspace, "Temperature_PV", 0, ua.VariantType.Double)
+    M200_Temperature_SP = AssetMashTun200.add_variable(addspace, "Temperature_SP", 0, ua.VariantType.Int64)
+    M200_UtilizationState = AssetMashTun200.add_variable(addspace, "UtilizationState", 0, ua.VariantType.String) 
+    M200_Utilization = AssetMashTun200.add_variable(addspace, "Utilization", 0, ua.VariantType.String)
+    M200_Water_PV = AssetMashTun200.add_variable(addspace, "Water_PV", 0, ua.VariantType.Double)
+    M200_Water_SP = AssetMashTun200.add_variable(addspace, "Water_SP", 0, ua.VariantType.Int64)
+    M200_WaterValve_CLS = AssetMashTun200.add_variable(addspace, "WaterValve_CLS", 0, ua.VariantType.Boolean)
+    M200_WaterValve_OLS = AssetMashTun200.add_variable(addspace, "WaterValve_OLS", 0, ua.VariantType.Boolean)
+    M200_WaterValve_PV = AssetMashTun200.add_variable(addspace, "WaterValve_PV", 0, ua.VariantType.String)
+    M200_Wort_Item = AssetMashTun200.add_variable(addspace, "Wort_Item", 0, ua.VariantType.String)
+    M200_Wort_PV = AssetMashTun200.add_variable(addspace, "Wort_PV", 0, ua.VariantType.Double)
 
     # Create new OPC data items for BoilKettle 100       
     BK100_Cons_Hops_FromLot = AssetBoilKettle100.add_variable(addspace, "Cons_Hops_FromLot", 0, ua.VariantType.String)    
@@ -670,8 +994,8 @@ if __name__ == "__main__":
     Roaster200 = Roaster("Roaster200")
     MaltMill100 = MaltMill("MaltMill100")
     MaltMill200 = MaltMill("MaltMill200")
-    Mash100 = Mash("Mash100")
-    Mash200 = Mash("Mash200")  
+    MashTun100 = Mash("MashTun100")
+    MashTun200 = Mash("MashTun200")  
     BoilKettle100 = BoilKettle("BoilKettle100")  
     BoilKettle200 = BoilKettle("BoilKettle200")
     Fermenter100 = Fermenter("Fermenter100")
@@ -698,10 +1022,13 @@ if __name__ == "__main__":
     FerShipToTime200.PT = 15    
 
     # Start the OPC UA Server
-    server.start()    
+    #server.start()    
 
     try:
 
+        t = threading.Thread(target=publish_to_sitewise_thread, args=())
+        t.start()
+        
         while True:
 
             # Set assets to run            
@@ -1358,42 +1685,42 @@ if __name__ == "__main__":
                                         "RoastedBarley_ToLot":Roaster100.Prod_RoastedBarley_ToLot,
                                         "RoastedBarley_Item":Roaster100.Prod_RoastedBarley_Item}
 
-                    if (len(Mash100.ConsList) <= 20):
-                        Mash100.ConsList.append(R100NewProdDict)
+                    if (len(MashTun100.ConsList) <= 20):
+                        MashTun100.ConsList.append(R100NewProdDict)
             else:
                 R100MatTransOS = False
 
-            Mash100.NewState = MaltMill100.NewState
-            Mash100.Utilization = MaltMill100.Utilization
-            Mash100.UtilizationState = MaltMill100.UtilizationState
-            MaltMill100.MaltSP = round(Mash100.WaterSP * 0.2951328, 2)
-            MaltMill100.MashTunComplete = Mash100.MashComplete
-            Mash100.MaltMillComplete = MaltMill100.MaltMillComplete
+            MashTun100.NewState = MaltMill100.NewState
+            MashTun100.Utilization = MaltMill100.Utilization
+            MashTun100.UtilizationState = MaltMill100.UtilizationState
+            MaltMill100.MaltSP = round(MashTun100.WaterSP * 0.2951328, 2)
+            MaltMill100.MashTunComplete = MashTun100.MashComplete
+            MashTun100.MaltMillComplete = MaltMill100.MaltMillComplete
 
             # Send ProductionID and MaterialID Information to Downstream Assets Mash100->BoilKettle100
-            if (Mash100.NewState == NewStateEnum.Running):
-                BoilKettle100.Next_ProductionID = Mash100.ProductionID
-                BoilKettle100.Next_ItemID = Mash100.Wort_Item
+            if (MashTun100.NewState == NewStateEnum.Running):
+                BoilKettle100.Next_ProductionID = MashTun100.ProductionID
+                BoilKettle100.Next_ItemID = MashTun100.Wort_Item
 
             # Send Produced Information to Downstream Assets Mash100->BoilKettle100 for Consumption
-            if (Mash100.NewStatus == NewStatusEnum.Draining):
-                BoilKettle100.Cons_Wort_Item = Mash100.Prod_Wort_Item
-                BoilKettle100.Cons_Wort_FromLot = Mash100.Prod_Wort_ToLot
+            if (MashTun100.NewStatus == NewStatusEnum.Draining):
+                BoilKettle100.Cons_Wort_Item = MashTun100.Prod_Wort_Item
+                BoilKettle100.Cons_Wort_FromLot = MashTun100.Prod_Wort_ToLot
 
             if (BoilKettle100.NewState == NewStateEnum.Ready):
-                Mash100.BrewKettleReady = True
+                MashTun100.BrewKettleReady = True
             else:
-                Mash100.BrewKettleReady = False
+                MashTun100.BrewKettleReady = False
 
             #Update MaltMill100 and MashTun100
-            Mash100.Run()
+            MashTun100.Run()
             MaltMill100.Run()             
 
-            BoilKettle100.StartCmd = Mash100.OutletPump.AuxContact            
-            BoilKettle100.MashShipComplete = Mash100.ShipComplete or (Mash100.NewState == NewStateEnum.Aborted and BoilKettle100.NewStatus == NewStatusEnum.Filling) 
+            BoilKettle100.StartCmd = MashTun100.OutletPump.AuxContact            
+            BoilKettle100.MashShipComplete = MashTun100.ShipComplete or (MashTun100.NewState == NewStateEnum.Aborted and BoilKettle100.NewStatus == NewStatusEnum.Filling) 
 
-            if (Mash100.NewStatus == NewStatusEnum.Draining) and (Mash100.NewState == NewStateEnum.Running):
-                BoilKettle100.WortPV = Mash100.WortPV
+            if (MashTun100.NewStatus == NewStatusEnum.Draining) and (MashTun100.NewState == NewStateEnum.Running):
+                BoilKettle100.WortPV = MashTun100.WortPV
 
             # Send ProductionID and MaterialID Information to Downstream Assets BoilKettle100->Fermenter100
             if (BoilKettle100.NewState == NewStateEnum.Running):
@@ -1410,7 +1737,7 @@ if __name__ == "__main__":
             else:
                 BoilKettle100.FermenterReady = False                
 
-            if (BoilKettle100.NewStatus == NewStatusEnum.Filling) and (Mash100.NewStatus != NewStatusEnum.Draining):
+            if (BoilKettle100.NewStatus == NewStatusEnum.Filling) and (MashTun100.NewStatus != NewStatusEnum.Draining):
                 BoilKettle100.MashShipComplete = True
 
             # Update BoilKettle100
@@ -1437,42 +1764,42 @@ if __name__ == "__main__":
                                         "RoastedBarley_ToLot":Roaster200.Prod_RoastedBarley_ToLot,
                                         "RoastedBarley_Item":Roaster200.Prod_RoastedBarley_Item}
 
-                    if (len(Mash200.ConsList) <= 20):
-                        Mash200.ConsList.append(R200NewProdDict)
+                    if (len(MashTun200.ConsList) <= 20):
+                        MashTun200.ConsList.append(R200NewProdDict)
             else:
                 R200MatTransOS = False
 
-            Mash200.NewState = MaltMill200.NewState
-            Mash200.Utilization = MaltMill200.Utilization
-            Mash200.UtilizationState = MaltMill200.UtilizationState
-            MaltMill200.MaltSP = round(Mash200.WaterSP * 0.2951328, 2)
-            MaltMill200.MashTunComplete = Mash200.MashComplete
-            Mash200.MaltMillComplete = MaltMill200.MaltMillComplete
+            MashTun200.NewState = MaltMill200.NewState
+            MashTun200.Utilization = MaltMill200.Utilization
+            MashTun200.UtilizationState = MaltMill200.UtilizationState
+            MaltMill200.MaltSP = round(MashTun200.WaterSP * 0.2951328, 2)
+            MaltMill200.MashTunComplete = MashTun200.MashComplete
+            MashTun200.MaltMillComplete = MaltMill200.MaltMillComplete
 
             # Send ProductionID and MaterialID Information to Downstream Assets Mash200->BoilKettle200 
-            if (Mash200.NewState == NewStateEnum.Running):
-                BoilKettle200.Next_ProductionID = Mash200.ProductionID
-                BoilKettle200.Next_ItemID = Mash200.Wort_Item
+            if (MashTun200.NewState == NewStateEnum.Running):
+                BoilKettle200.Next_ProductionID = MashTun200.ProductionID
+                BoilKettle200.Next_ItemID = MashTun200.Wort_Item
 
             # Send Produced Information to Downstream Assets Mash200->BoilKettle200 for Consumption
-            if (Mash200.NewStatus == NewStatusEnum.Draining):
-                BoilKettle200.Cons_Wort_Item = Mash200.Prod_Wort_Item
-                BoilKettle200.Cons_Wort_FromLot = Mash200.Prod_Wort_ToLot
+            if (MashTun200.NewStatus == NewStatusEnum.Draining):
+                BoilKettle200.Cons_Wort_Item = MashTun200.Prod_Wort_Item
+                BoilKettle200.Cons_Wort_FromLot = MashTun200.Prod_Wort_ToLot
 
             if (BoilKettle200.NewState == NewStateEnum.Ready):
-                Mash200.BrewKettleReady = True
+                MashTun200.BrewKettleReady = True
             else:
-                Mash200.BrewKettleReady = False
+                MashTun200.BrewKettleReady = False
 
             #Update MaltMill200 and MashTun200           
-            Mash200.Run()
+            MashTun200.Run()
             MaltMill200.Run()                  
 
-            BoilKettle200.StartCmd = Mash200.OutletPump.AuxContact
-            BoilKettle200.MashShipComplete = Mash200.ShipComplete or (Mash200.NewState == NewStateEnum.Aborted and BoilKettle200.NewStatus == NewStatusEnum.Filling) 
+            BoilKettle200.StartCmd = MashTun200.OutletPump.AuxContact
+            BoilKettle200.MashShipComplete = MashTun200.ShipComplete or (MashTun200.NewState == NewStateEnum.Aborted and BoilKettle200.NewStatus == NewStatusEnum.Filling) 
 
-            if (Mash200.NewStatus == NewStatusEnum.Draining) and (Mash200.NewState == NewStateEnum.Running):
-                BoilKettle200.WortPV = Mash200.WortPV 
+            if (MashTun200.NewStatus == NewStatusEnum.Draining) and (MashTun200.NewState == NewStateEnum.Running):
+                BoilKettle200.WortPV = MashTun200.WortPV 
 
             # Send ProductionID and MaterialID Information to Downstream Assets BoilKettle200->Fermenter200
             if (BoilKettle200.NewState == NewStateEnum.Running):
@@ -1489,7 +1816,7 @@ if __name__ == "__main__":
             else:
                 BoilKettle200.FermenterReady = False 
 
-            if (BoilKettle200.NewStatus == NewStatusEnum.Filling) and (Mash200.NewStatus != NewStatusEnum.Draining):
+            if (BoilKettle200.NewStatus == NewStatusEnum.Filling) and (MashTun200.NewStatus != NewStatusEnum.Draining):
                 BoilKettle200.MashShipComplete = True     
 
             # Update BoilKettle200
@@ -1572,45 +1899,45 @@ if __name__ == "__main__":
             MM100_State.set_value(MaltMill100.NewState)
 
             # Mash100             
-            M100_Agitator_AuxContact.set_value(Mash100.Agitator.AuxContact)
-            M100_Agitator_PV.set_value(Mash100.Agitator.PV)
-            M100_Cons_Malt_FromLot.set_value(Mash100.Cons_Malt_FromLot)
-            M100_Cons_Malt_Item.set_value(Mash100.Cons_Malt_Item)
-            M100_HoldTime_PT.set_value(Mash100.HoldTime.PT)
-            M100_HoldTime_ET.set_value(Mash100.HoldTime.ET)
-            M100_Level_PV.set_value(Mash100.LevelPV)
-            M100_MaterialID.set_value(Mash100.MaterialID)
-            M100_State.set_value(Mash100.NewState)
-            M100_Status.set_value(Mash100.NewStatus)
-            M100_OutletPump_AuxContact.set_value(Mash100.OutletPump.AuxContact)
-            M100_OutletPump_PV.set_value(Mash100.OutletPump.PV)
-            M100_OutletValve_CLS.set_value(Mash100.OutletValve.CLS)
-            M100_OutletValve_OLS.set_value(Mash100.OutletValve.OLS)
-            M100_OutletValve_PV.set_value(Mash100.OutletValve.PV)
-            M100_Prod_Wort_Item.set_value(Mash100.Prod_Wort_Item)
-            M100_Prod_Wort_ToLot.set_value(Mash100.Prod_Wort_ToLot)
-            M100_ProductionID.set_value(Mash100.ProductionID)
-            M100_Scrap.set_value(Mash100.Scrap)
-            M100_Scrap_ToLot.set_value(Mash100.Scrap_ToLot)
-            M100_ShipComplete.set_value(Mash100.ShipComplete)
-            M100_SoakTempSP1.set_value(Mash100.SoakTempSP1)
-            M100_SoakTempSP2.set_value(Mash100.SoakTempSP2)
-            M100_SoakTimeSP1.set_value(Mash100.SoakTimeSP1)
-            M100_SoakTimeSP2.set_value(Mash100.SoakTimeSP2)
-            M100_SteamValve_CLS.set_value(Mash100.SteamValve.CLS)
-            M100_SteamValve_OLS.set_value(Mash100.SteamValve.OLS)
-            M100_SteamValve_PV.set_value(Mash100.SteamValve.PV)
-            M100_Temperature_PV.set_value(Mash100.TemperaturePV)
-            M100_Temperature_SP.set_value(Mash100.TemperatureSP)
-            M100_UtilizationState.set_value(Mash100.UtilizationState)
-            M100_Utilization.set_value(Mash100.Utilization)
-            M100_Water_PV.set_value(Mash100.WaterPV)
-            M100_Water_SP.set_value(Mash100.WaterSP)
-            M100_WaterValve_CLS.set_value(Mash100.WaterValve.CLS)
-            M100_WaterValve_OLS.set_value(Mash100.WaterValve.OLS)
-            M100_WaterValve_PV.set_value(Mash100.WaterValve.PV)
-            M100_Wort_Item.set_value(Mash100.Wort_Item)
-            M100_Wort_PV.set_value(Mash100.WortPV)
+            M100_Agitator_AuxContact.set_value(MashTun100.Agitator.AuxContact)
+            M100_Agitator_PV.set_value(MashTun100.Agitator.PV)
+            M100_Cons_Malt_FromLot.set_value(MashTun100.Cons_Malt_FromLot)
+            M100_Cons_Malt_Item.set_value(MashTun100.Cons_Malt_Item)
+            M100_HoldTime_PT.set_value(MashTun100.HoldTime.PT)
+            M100_HoldTime_ET.set_value(MashTun100.HoldTime.ET)
+            M100_Level_PV.set_value(MashTun100.LevelPV)
+            M100_MaterialID.set_value(MashTun100.MaterialID)
+            M100_State.set_value(MashTun100.NewState)
+            M100_Status.set_value(MashTun100.NewStatus)
+            M100_OutletPump_AuxContact.set_value(MashTun100.OutletPump.AuxContact)
+            M100_OutletPump_PV.set_value(MashTun100.OutletPump.PV)
+            M100_OutletValve_CLS.set_value(MashTun100.OutletValve.CLS)
+            M100_OutletValve_OLS.set_value(MashTun100.OutletValve.OLS)
+            M100_OutletValve_PV.set_value(MashTun100.OutletValve.PV)
+            M100_Prod_Wort_Item.set_value(MashTun100.Prod_Wort_Item)
+            M100_Prod_Wort_ToLot.set_value(MashTun100.Prod_Wort_ToLot)
+            M100_ProductionID.set_value(MashTun100.ProductionID)
+            M100_Scrap.set_value(MashTun100.Scrap)
+            M100_Scrap_ToLot.set_value(MashTun100.Scrap_ToLot)
+            M100_ShipComplete.set_value(MashTun100.ShipComplete)
+            M100_SoakTempSP1.set_value(MashTun100.SoakTempSP1)
+            M100_SoakTempSP2.set_value(MashTun100.SoakTempSP2)
+            M100_SoakTimeSP1.set_value(MashTun100.SoakTimeSP1)
+            M100_SoakTimeSP2.set_value(MashTun100.SoakTimeSP2)
+            M100_SteamValve_CLS.set_value(MashTun100.SteamValve.CLS)
+            M100_SteamValve_OLS.set_value(MashTun100.SteamValve.OLS)
+            M100_SteamValve_PV.set_value(MashTun100.SteamValve.PV)
+            M100_Temperature_PV.set_value(MashTun100.TemperaturePV)
+            M100_Temperature_SP.set_value(MashTun100.TemperatureSP)
+            M100_UtilizationState.set_value(MashTun100.UtilizationState)
+            M100_Utilization.set_value(MashTun100.Utilization)
+            M100_Water_PV.set_value(MashTun100.WaterPV)
+            M100_Water_SP.set_value(MashTun100.WaterSP)
+            M100_WaterValve_CLS.set_value(MashTun100.WaterValve.CLS)
+            M100_WaterValve_OLS.set_value(MashTun100.WaterValve.OLS)
+            M100_WaterValve_PV.set_value(MashTun100.WaterValve.PV)
+            M100_Wort_Item.set_value(MashTun100.Wort_Item)
+            M100_Wort_PV.set_value(MashTun100.WortPV)
 
             # MaltMill200   
             MM200_Malt_PV.set_value(MaltMill200.MaltPV)
@@ -1622,45 +1949,45 @@ if __name__ == "__main__":
             MM200_State.set_value(MaltMill200.NewState)     
 
             # Mash200             
-            M200_Agitator_AuxContact.set_value(Mash200.Agitator.AuxContact)
-            M200_Agitator_PV.set_value(Mash200.Agitator.PV)
-            M200_Cons_Malt_FromLot.set_value(Mash200.Cons_Malt_FromLot)
-            M200_Cons_Malt_Item.set_value(Mash200.Cons_Malt_Item)
-            M200_HoldTime_PT.set_value(Mash200.HoldTime.PT)
-            M200_HoldTime_ET.set_value(Mash200.HoldTime.ET)
-            M200_Level_PV.set_value(Mash200.LevelPV)
-            M200_MaterialID.set_value(Mash200.MaterialID)
-            M200_State.set_value(Mash200.NewState)
-            M200_Status.set_value(Mash200.NewStatus)
-            M200_OutletPump_AuxContact.set_value(Mash200.OutletPump.AuxContact)
-            M200_OutletPump_PV.set_value(Mash200.OutletPump.PV)
-            M200_OutletValve_CLS.set_value(Mash200.OutletValve.CLS)
-            M200_OutletValve_OLS.set_value(Mash200.OutletValve.OLS)
-            M200_OutletValve_PV.set_value(Mash200.OutletValve.PV)
-            M200_Prod_Wort_Item.set_value(Mash200.Prod_Wort_Item)
-            M200_Prod_Wort_ToLot.set_value(Mash200.Prod_Wort_ToLot)
-            M200_ProductionID.set_value(Mash200.ProductionID)
-            M200_Scrap.set_value(Mash200.Scrap)
-            M200_Scrap_ToLot.set_value(Mash200.Scrap_ToLot)
-            M200_ShipComplete.set_value(Mash200.ShipComplete)
-            M200_SoakTempSP1.set_value(Mash200.SoakTempSP1)
-            M200_SoakTempSP2.set_value(Mash200.SoakTempSP2)
-            M200_SoakTimeSP1.set_value(Mash200.SoakTimeSP1)
-            M200_SoakTimeSP2.set_value(Mash200.SoakTimeSP2)
-            M200_SteamValve_CLS.set_value(Mash200.SteamValve.CLS)
-            M200_SteamValve_OLS.set_value(Mash200.SteamValve.OLS)
-            M200_SteamValve_PV.set_value(Mash200.SteamValve.PV)
-            M200_Temperature_PV.set_value(Mash200.TemperaturePV)
-            M200_Temperature_SP.set_value(Mash200.TemperatureSP)
-            M200_UtilizationState.set_value(Mash200.UtilizationState)
-            M200_Utilization.set_value(Mash200.Utilization)
-            M200_Water_PV.set_value(Mash200.WaterPV)
-            M200_Water_SP.set_value(Mash200.WaterSP)
-            M200_WaterValve_CLS.set_value(Mash200.WaterValve.CLS)
-            M200_WaterValve_OLS.set_value(Mash200.WaterValve.OLS)
-            M200_WaterValve_PV.set_value(Mash200.WaterValve.PV)
-            M200_Wort_Item.set_value(Mash200.Wort_Item)
-            M200_Wort_PV.set_value(Mash200.WortPV)     
+            M200_Agitator_AuxContact.set_value(MashTun200.Agitator.AuxContact)
+            M200_Agitator_PV.set_value(MashTun200.Agitator.PV)
+            M200_Cons_Malt_FromLot.set_value(MashTun200.Cons_Malt_FromLot)
+            M200_Cons_Malt_Item.set_value(MashTun200.Cons_Malt_Item)
+            M200_HoldTime_PT.set_value(MashTun200.HoldTime.PT)
+            M200_HoldTime_ET.set_value(MashTun200.HoldTime.ET)
+            M200_Level_PV.set_value(MashTun200.LevelPV)
+            M200_MaterialID.set_value(MashTun200.MaterialID)
+            M200_State.set_value(MashTun200.NewState)
+            M200_Status.set_value(MashTun200.NewStatus)
+            M200_OutletPump_AuxContact.set_value(MashTun200.OutletPump.AuxContact)
+            M200_OutletPump_PV.set_value(MashTun200.OutletPump.PV)
+            M200_OutletValve_CLS.set_value(MashTun200.OutletValve.CLS)
+            M200_OutletValve_OLS.set_value(MashTun200.OutletValve.OLS)
+            M200_OutletValve_PV.set_value(MashTun200.OutletValve.PV)
+            M200_Prod_Wort_Item.set_value(MashTun200.Prod_Wort_Item)
+            M200_Prod_Wort_ToLot.set_value(MashTun200.Prod_Wort_ToLot)
+            M200_ProductionID.set_value(MashTun200.ProductionID)
+            M200_Scrap.set_value(MashTun200.Scrap)
+            M200_Scrap_ToLot.set_value(MashTun200.Scrap_ToLot)
+            M200_ShipComplete.set_value(MashTun200.ShipComplete)
+            M200_SoakTempSP1.set_value(MashTun200.SoakTempSP1)
+            M200_SoakTempSP2.set_value(MashTun200.SoakTempSP2)
+            M200_SoakTimeSP1.set_value(MashTun200.SoakTimeSP1)
+            M200_SoakTimeSP2.set_value(MashTun200.SoakTimeSP2)
+            M200_SteamValve_CLS.set_value(MashTun200.SteamValve.CLS)
+            M200_SteamValve_OLS.set_value(MashTun200.SteamValve.OLS)
+            M200_SteamValve_PV.set_value(MashTun200.SteamValve.PV)
+            M200_Temperature_PV.set_value(MashTun200.TemperaturePV)
+            M200_Temperature_SP.set_value(MashTun200.TemperatureSP)
+            M200_UtilizationState.set_value(MashTun200.UtilizationState)
+            M200_Utilization.set_value(MashTun200.Utilization)
+            M200_Water_PV.set_value(MashTun200.WaterPV)
+            M200_Water_SP.set_value(MashTun200.WaterSP)
+            M200_WaterValve_CLS.set_value(MashTun200.WaterValve.CLS)
+            M200_WaterValve_OLS.set_value(MashTun200.WaterValve.OLS)
+            M200_WaterValve_PV.set_value(MashTun200.WaterValve.PV)
+            M200_Wort_Item.set_value(MashTun200.Wort_Item)
+            M200_Wort_PV.set_value(MashTun200.WortPV)     
             
             # BoilKettle100            
             BK100_Cons_Hops_FromLot.set_value(BoilKettle100.Cons_Hops_FromLot) 
@@ -2066,7 +2393,7 @@ if __name__ == "__main__":
             BL403_Scrap.set_value(BottleLine403.Scrap)            
 
             # Set Scan rate
-            time.sleep(.100)
+            time.sleep(.1)   
 
     finally:
         #close connection, remove subcsriptions, etc

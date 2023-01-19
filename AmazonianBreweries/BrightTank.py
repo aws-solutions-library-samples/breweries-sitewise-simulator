@@ -3,7 +3,7 @@
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 
 #----------------------------------------------------------------------------
-# Created By  : Nick Santucci @nictooch
+# Created By  : Nick Santucci
 # Created Date: February 14 2022 
 # version ='1.0.0'
 # ---------------------------------------------------------------------------
