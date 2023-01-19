@@ -2,9 +2,23 @@
 
 ## Summary
 
-Amazonian Breweries is a Python based program to exercise the capabilities of IoT SiteWise (Monitor), IoT Greengrass, IoT TwinMaker, and other IoT based AWS services that constantly runs and produces factory like data exposed via an OPC UA Server (a cross-platform, open-source, IEC62541 standard for data exchange from sensors to cloud applications developed by the OPC Foundation) for consumption by an OPC UA Client (like the IoT SiteWise OPC UA Collector). 
+Amazonian Breweries is a Python based program to exercise the capabilities of IoT SiteWise (Monitor), IoT Greengrass, IoT TwinMaker, and other IoT based AWS services that constantly runs and produces factory like data exposed via an OPC UA Server (a cross-platform, open-source, IEC62541 standard for data exchange from sensors to cloud applications developed by the OPC Foundation) for consumption by an OPC UA Client (like the IoT SiteWise OPC UA Collector). In addition, you can configure the publishing of values directly to IoT SiteWise at a specified interval. 
 
-python3 awsBrewSimServer.py --publishtositewise 1 --interval 5 --region us-west-2
+ - Example Command to publish data to IoT SiteWise every 5 seconds to us-west-2:
+      ```
+      python3 awsBrewSimServer.py --publishtositewise 1 --interval 5 --region us-west-2
+
+      ```
+
+Feel free to run this python simulator in your own environment manually or through a quick deploy using the cloudformation template below.
+
+## Quick Deploy
+
+1. Log on to your AWS Console.
+2. Click on this link to install the CloudFormation template on your account.
+3. Once complete, you will start to see live values stored in IoT SiteWise. 
+
+### Manual Install
 
 ## Prerequisites
 
@@ -37,9 +51,10 @@ python3 awsBrewSimServer.py --publishtositewise 1 --interval 5 --region us-west-
 
       ```
 
-4. Copy the Amazonian Breweries program folder to the server host (see Step 1 above), then open the AmazonianBreweries\awsBrewOPCUAServer.py file, go to line 70, and update the IP address to your servers IP address.  
+## Deployment Steps
+4. Copy the Amazonian Breweries program folder to the server host (see Step 1 above), then open the AmazonBreweries\awsBrewSimServer.py file, go to line 70, and update the IP address to your servers IP address.  
 
-5. Start the Amazonian Breweries program - python3.exe "directory where program folder was copied to"/AmazonianBreweries/awsBrewOPCUAServer.py (<b>Note:</b> Once the Amazonian Breweries program is running, the factory simulation will begin automatically and OPC UA Clients such as the IoT SiteWise OPC Collector, UA Expert, Kepware, etc. can begin to ingest and/or visual the data) 
+5. Start the Amazonian Breweries program - python3.exe "directory where program folder was copied to"/AmazonBreweries/awsBrewSimServer.py (<b>Note:</b> Once the Amazonian Breweries program is running, the factory simulation will begin automatically and OPC UA Clients such as the IoT SiteWise OPC Collector, UA Expert, Kepware, etc. can begin to ingest and/or visual the data) 
 
 6. Create an Edge Device (Ubuntu 20.04 or 18.04, Red Hat Enterprise Linux (RHEL) 8, or Amazon Linux 2) to host AWS IoT SiteWise Edge  gateway.  
 
@@ -88,8 +103,8 @@ python3 awsBrewSimServer.py --publishtositewise 1 --interval 5 --region us-west-
     - In the <b>Model</b> drop-down list box, select <b>MaltMill</b> and name it <b>MaltMill100</b>, click the <b>Create asset</b> button.  Repeat this process for <b>MaltMill200</b>.
     - In the <b>Model</b> drop-down list box, select <b>Roaster</b> and name it <b>Roaster100</b>, click the <b>Create asset</b> button.  Repeat this process for <b>Roaster200</b>.
     - In the <b>Model</b> drop-down list box, select <b>Area</b> and name it <b>Bottling</b>, click the <b>Create asset</b> button.  Repeat this process for <b>BeerStorage</b>, <b>Fermentation</b>, <b>Brewing</b>, <b>Mashing</b>, and <b>Roasting</b>.
-    - In the <b>Model</b> drop-down list box, select <b>Site</b> and name it <b>TampaPlant</b>, click the <b>Create asset</b> button.
-    - In the <b>Model</b> drop-down list box, select <b>Enterprise</b> and name it <b>AmazonianBreweries</b>, click the <b>Create asset</b> button.               
+    - In the <b>Model</b> drop-down list box, select <b>Site</b> and name it <b>IrvinePlant</b>, click the <b>Create asset</b> button.
+    - In the <b>Model</b> drop-down list box, select <b>Enterprise</b> and name it <b>AmazonBreweries</b>, click the <b>Create asset</b> button.               
 
 12. Now we need to create the Asset hierarchy for the physical assets for more meaningful data context. 
     - In the Assets list, open the <b>Bottling</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>BottleLine</b> and for the <b>Asset</b> select <b>BottleLine401</b>. Repeat this for <b>Bottleline/BottleLine402</b> and <b>Bottleline/BottleLine403</b>. 
@@ -98,20 +113,20 @@ python3 awsBrewSimServer.py --publishtositewise 1 --interval 5 --region us-west-
     - In the Assets list, open the <b>Brewing</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>BoilKettle</b> and for the <b>Asset</b> select <b>BoilKettle100</b>. Repeat this for <b>BoilKettle/BoilKettle200</b>.
     - In the Assets list, open the <b>Mashing</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>MaltMill</b> and for the <b>Asset</b> select <b>MaltMill100</b>. Repeat this for <b>MaltMill/MaltMill200</b> as well <b>MashTun/MashTun100</b> and <b>MashTun/MashTun200</b>. 
     - In the Assets list, open the <b>Roasting</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Roaster</b> and for the <b>Asset</b> select <b>Roaster100</b>. Repeat this for <b>Roaster/Roaster200</b>.
-    - In the Assets list, open the <b>TampaPlant</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Areas</b> and for the <b>Asset</b> select <b>Bottling</b>. Repeat this for <b>Areas/BeerStorage</b>, <b>Areas/Fermentation</b>, <b>Areas/Brewing</b>, <b>Areas/Mashing</b>, and <b>Areas/Roasting</b>.
-    - In the Assets list, open the <b>AmazonianBreweries</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Sites</b> and for the <b>Asset</b> select <b>TampaPlant</b>. 
+    - In the Assets list, open the <b>IrvinePlant</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Areas</b> and for the <b>Asset</b> select <b>Bottling</b>. Repeat this for <b>Areas/BeerStorage</b>, <b>Areas/Fermentation</b>, <b>Areas/Brewing</b>, <b>Areas/Mashing</b>, and <b>Areas/Roasting</b>.
+    - In the Assets list, open the <b>AmazonBreweries</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Sites</b> and for the <b>Asset</b> select <b>IrvinePlant</b>. 
 
 13. Refresh the browser to update the hierarchy. 
 
 14. The final prerequisite task is to add an Alias to each Measurement in each Asset.  If you have Data Streams capability enabled, you can use the AWS Console UI to manage data streams coming in from industrial assets, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/manage-data-streams-console.html.  If you need to execute this manually, please follow this alias pattern to fill in the Alias field for each Measurement:
-    - /AmazonianBreweries/TampaPlant/<i>Area</i>/<i>AssetName</i>/<i>MeasurementName</i>
+    - /AmazonBreweries/IrvinePlant/<i>Area</i>/<i>AssetName</i>/<i>MeasurementName</i>
   - Here are a handful of examples to get you started:
-    - /AmazonianBreweries/TampaPlant/Roasting/Roaster100/Utilization  
-    - /AmazonianBreweries/TampaPlant/Mashing/MashTun100/Utilization
-    - /AmazonianBreweries/TampaPlant/Brewing/BoilKettle100/Utilization
-    - /AmazonianBreweries/TampaPlant/Fermentation/Fermenter100/Utilization 
-    - /AmazonianBreweries/TampaPlant/BeerStorage/BrightTank301/Utilization 
-    - /AmazonianBreweries/TampaPlant/Bottling/BottleLine401/Utilization    
+    - /AmazonBreweries/IrvinePlant/Roasting/Roaster100/Utilization  
+    - /AmazonBreweries/IrvinePlant/Mashing/MashTun100/Utilization
+    - /AmazonBreweries/IrvinePlant/Brewing/BoilKettle100/Utilization
+    - /AmazonBreweries/IrvinePlant/Fermentation/Fermenter100/Utilization 
+    - /AmazonBreweries/IrvinePlant/BeerStorage/BrightTank301/Utilization 
+    - /AmazonBreweries/IrvinePlant/Bottling/BottleLine401/Utilization    
 
 ## Control Narrative
       
@@ -119,4 +134,4 @@ The Amazonian Breweries program creates factory like quality data.  This section
 
 We will begin with an overview of the overall Amazonian Breweries Material Flow.
 
-![AmazonianBreweriesMaterialFlow](./images/AmazonianBreweriesMaterialFlow.jpg)
+![AmazonBreweriesMaterialFlow](./images/AmazonBreweriesMaterialFlow.jpg)
