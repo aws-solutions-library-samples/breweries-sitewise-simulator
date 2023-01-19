@@ -12,15 +12,24 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 
 Feel free to run this python simulator in your own environment manually or through a quick deploy using the cloudformation template below.
 
+## Control Narrative
+      
+The Amazonian Breweries program creates factory like quality data.  This section of the getting started guide will describe how the Amazonian Brewery works so you can have a better understanding of how to use and leverage the industrial data provided by the brewery in your presentations, demonstrations, and proof of concepts.  
+
+We will begin with an overview of the overall Amazonian Breweries Material Flow.
+
+![AmazonBreweriesMaterialFlow](./images/AmazonBreweriesMaterialFlow.jpg)
+
+
 ## Quick Deploy
 
 1. Log on to your AWS Console.
 2. Click on this link to install the CloudFormation template on your account.
 3. Once complete, you will start to see live values stored in IoT SiteWise. 
 
-### Manual Install
+## Manual Install
 
-## Prerequisites
+### Prerequisites
 
 1. Create a server environment (Linux, Windows, or macOS) to host the Amazonian Breweries OPC UA Server Python program.
 
@@ -51,7 +60,7 @@ Feel free to run this python simulator in your own environment manually or throu
 
       ```
 
-## Deployment Steps
+### Deployment Steps
 4. Copy the Amazonian Breweries program folder to the server host (see Step 1 above), then open the AmazonBreweries\awsBrewSimServer.py file, go to line 70, and update the IP address to your servers IP address.  
 
 5. Start the Amazonian Breweries program - python3.exe "directory where program folder was copied to"/AmazonBreweries/awsBrewSimServer.py (<b>Note:</b> Once the Amazonian Breweries program is running, the factory simulation will begin automatically and OPC UA Clients such as the IoT SiteWise OPC Collector, UA Expert, Kepware, etc. can begin to ingest and/or visual the data) 
@@ -128,10 +137,3 @@ Feel free to run this python simulator in your own environment manually or throu
     - /AmazonBreweries/IrvinePlant/BeerStorage/BrightTank301/Utilization 
     - /AmazonBreweries/IrvinePlant/Bottling/BottleLine401/Utilization    
 
-## Control Narrative
-      
-The Amazonian Breweries program creates factory like quality data.  This section of the getting started guide will describe how the Amazonian Brewery works so you can have a better understanding of how to use and leverage the industrial data provided by the brewery in your presentations, demonstrations, and proof of concepts.  
-
-We will begin with an overview of the overall Amazonian Breweries Material Flow.
-
-![AmazonBreweriesMaterialFlow](./images/AmazonBreweriesMaterialFlow.jpg)
