@@ -1,8 +1,8 @@
-# Amazonian Breweries SiteWise Simulator - Getting Started
+# ACME Breweries SiteWise Simulator - Getting Started
 
 ## Summary
 
-Amazonian Breweries is a Python based program to exercise the capabilities of IoT SiteWise (Monitor), IoT Greengrass, IoT TwinMaker, and other IoT based AWS services that constantly runs and produces factory like data exposed via an OPC UA Server (a cross-platform, open-source, IEC62541 standard for data exchange from sensors to cloud applications developed by the OPC Foundation) for consumption by an OPC UA Client (like the IoT SiteWise OPC UA Collector). In addition, you can configure the publishing of values directly to IoT SiteWise at a specified interval. 
+ACME Breweries is a Python based simulation program to exercise the capabilities of IoT SiteWise (Monitor), IoT Greengrass, IoT TwinMaker, and other IoT based AWS services that constantly runs and produces factory like data exposed via an OPC UA Server (a cross-platform, open-source, IEC62541 standard for data exchange from sensors to cloud applications developed by the OPC Foundation) for consumption by an OPC UA Client (like the IoT SiteWise OPC UA Collector). In addition, you can configure the publishing of values directly to IoT SiteWise at a specified interval. 
 
  - Example Command to publish data to IoT SiteWise every 5 seconds to us-west-2:
       ```
@@ -12,16 +12,20 @@ Amazonian Breweries is a Python based program to exercise the capabilities of Io
 
 Feel free to run this python simulator in your own environment manually or through a quick deploy using the cloudformation template below.
 
-## Control Narrative
+## Simulation Description
       
-The Amazonian Breweries program creates factory like quality data.  This section of the getting started guide will describe how the Amazonian Brewery works so you can have a better understanding of how to use and leverage the industrial data provided by the brewery in your presentations, demonstrations, and proof of concepts.  
+This simulator program creates factory like quality data.  This section of the getting started guide will describe how the ACME Brewery works so you can have a better understanding of how to use and leverage the industrial data provided by the brewery. 
 
-We will begin with an overview of the overall Amazonian Breweries Material Flow.
+The diagram below is an view of the brewery material flow for the Irvine plant. ACME Brewery simulates production and consumption of items through the process below. This includes good production, scrap, and simulation of various utilization states. Telemetry data is also generated at the various operations for temperature and levels. With the data produced by this simulation, metrics are calculated in the SiteWise Models for OEE (Utilization, Performance, and Quality).
 
-![AmazonBreweriesMaterialFlow](./images/AmazonianBreweriesMaterialFlow.jpg)
+![ACMEBreweriesMaterialFlow](./images/ACMEBreweriesMaterialFlow.png)
 
 
 ## Quick Deploy
+
+Quick deploy will use cloudformation to setup an EC2 instance to run the simulator and publish values directly to IoT SiteWise, as seen in the architecture below:
+
+![ACMEBreweriesPublishToSW](./images/ACMEBreweriesPublishToSW.png)
 
 1. Log on to your AWS Console.
 2. Click on this link to install the CloudFormation template on your account.
@@ -29,9 +33,7 @@ We will begin with an overview of the overall Amazonian Breweries Material Flow.
 
 ## Manual Install
 
-### Prerequisites
-
-1. Create a server environment (Linux, Windows, or macOS) to host the Amazonian Breweries OPC UA Server Python program.
+1. Identify a system (Linux, Windows, or macOS) to host the brewery simulator Python program.
 
 2. [Python3](https://www.python.org/downloads/)
    - Verify your python3 path and version (<b>needs to be 3.10.0+</b>). 
@@ -60,80 +62,35 @@ We will begin with an overview of the overall Amazonian Breweries Material Flow.
 
       ```
 
-### Deployment Steps
-4. Copy the Amazonian Breweries program folder to the server host (see Step 1 above), then open the AmazonBreweries\awsBrewSimServer.py file, go to line 70, and update the IP address to your servers IP address.  
+4. Clone this respository to your environment.
+      ```
+      git clone https://REPO
 
-5. Start the Amazonian Breweries program - python3.exe "directory where program folder was copied to"/AmazonBreweries/awsBrewSimServer.py (<b>Note:</b> Once the Amazonian Breweries program is running, the factory simulation will begin automatically and OPC UA Clients such as the IoT SiteWise OPC Collector, UA Expert, Kepware, etc. can begin to ingest and/or visual the data) 
+      ```
 
-6. Create an Edge Device (Ubuntu 20.04 or 18.04, Red Hat Enterprise Linux (RHEL) 8, or Amazon Linux 2) to host AWS IoT SiteWise Edge  gateway.  
+5. Log in to your AWS Console and deploy this cloudformation template to configure all your IoT SiteWise Models and Assets.
 
-7. Create and deploy the AWS IoT SiteWise Edge gateway to the Edge Device (see step 6 above), please use this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/configure-gateway-ggv2.html. The Data processing pack is not required.
+### (Option A) Ingest Data through and OPC UA Client like AWS IoT SiteWise Edge Gateway
 
-    - <b>Note: When configuring the OPC UA datasource in the IoT SiteWise (or any 3rd party OPC UA Client), set the "Message security mode" to "None" and the "Authentication configuration" to "None - No authentication".  The Amazonian Breweries OPC UA Server program has not been tested with encryption or certificates for this current version of the program.</b>          
+If you are seeking to ingest data through OPC, you can use AWS IoT SiteWise Edge gateway to ingest this data. A Greengrass component can be created to make this simualtor deployable. Feel free to do this yourself until component sample is released or run it manually on your edge device. Below is a example architecture of this integration:
+![ACMEBreweriesOPCArchitecture](./images/ACMEBreweriesOPCArchitecture.png)
 
-8. Now you will need to create Models in the IoT SiteWise console, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/industrial-asset-models.html. The Amazonian Breweries project leverages the ISA-95 Equipment Model to define the plant hierarchy (Enterprise->Site->Area->Production Unit). To match up with the Amazonian Breweries OPC UA Server Plant Hierachy and Assets, here are the Asset Models and Measurements you will need to create in IoT SiteWise:
+6. Create an Edge Device (Ubuntu 20.04 or 18.04, Red Hat Enterprise Linux (RHEL) 8, or Amazon Linux 2) to host AWS IoT SiteWise Edge gateway.  
 
-    - Enterprise [Enterprise Model](./images/Enterprise_Model.jpg)
-    - Site [Site Model](./images/Site_Model.jpg)
-    - Area [Area Model](./images/Area_Model.jpg)
-    - Roaster [Roaster Model](./images/Roaster_Model.jpg)
-      - Roaster Measurements [Roaster Measurements](./images/Roaster_Model_Measurements.jpg)
-    - MaltMill [Roaster Model](./images/MaltMill_Model.jpg)
-      - MaltMill Measurements [MaltMill Measurements](./images/MaltMill_Model_Measurements.jpg)
-    - MashTun [MashTun Model](./images/MashTun_Model.jpg)
-      - MashTun Measurements Part 1 [MaltMill Measurements Part 1](./images/MashTun_Model_Measurements_Part_1.jpg)
-      - MashTun Measurements Part 2 [MaltMill Measurements Part 2](./images/MashTun_Model_Measurements_Part_2.jpg)
-    - BoilKettle [BoilKettle Model](./images/BoilKettle_Model.jpg)
-      - BoilKettle Measurements Part 1 [BoilKettle Measurements Part 1](./images/BoilKettle_Model_Measurements_Part_1.jpg)
-      - BoilKettle Measurements Part 2 [BoilKettle Measurements Part 2](./images/BoilKettle_Model_Measurements_Part_2.jpg)
-    - Fermenter [Fermenter Model](./images/Fermenter_Model.jpg)
-      - Fermenter Measurements Part 1 [Fermenter Measurements Part 1](./images/Fermenter_Model_Measurements_Part_1.jpg)
-      - Fermenter Measurements Part 2 [Fermenter Measurements Part 2](./images/Fermenter_Model_Measurements_Part_2.jpg)
-    - BrightTank [BrightTank Model](./images/BrightTank_Model.jpg)
-      - BrightTank Measurements Part 1 [BrightTank Measurements Part 1](./images/BrightTank_Model_Measurements_Part_1.jpg)
-      - BrightTank Measurements Part 2 [BrightTank Measurements Part 2](./images/BrightTank_Model_Measurements_Part_2.jpg)
-    - BottleLine [BottleLine Model](./images/BottleLine_Model.jpg)
-      - BottleLine Measurements Part 1 [BottleLine Measurements Part 1](./images/BottleLine_Model_Measurements_Part_1.jpg)
-      - BottleLine Measurements Part 2 [BottleLine Measurements Part 2](./images/BottleLine_Model_Measurements_Part_2.jpg)
-      
-9. In order to create a plant hierarchy (Enterprise->Site->Area->Production Unit), we have to edit the above Models to support "contained" Models. 
-    - Select the <b>Enterprise</b> Model and click the <b>Edit</b> button, scroll down to the <b>Hierarchy definitions</b> section, then click <b>Add new hierarchy</b>. For the <b>Hierarchy name</b> use <b>Sites</b> and then in the drop down listbox choose the <b>Site</b> Model, then click the <b>Save</b> button at the bottom of the page.  
-    - Next, select the <b>Site</b> Model and click the <b>Edit</b> button, scroll down to the <b>Hierarchy definitions</b> section, then click <b>Add new hierarchy</b>. For the <b>Hierarchy name</b> use <b>Areas</b> and then in the drop down listbox choose the <b>Area</b> Model, then click the <b>Save</b> button at the bottom of the page. 
-    - Finally, select the <b>Area</b> Model and click the <b>Edit</b> button, scroll down to the <b>Hierarchy definitions</b> section, then click <b>Add new hierarchy</b>. For the <b>Hierarchy name</b> use <b>Roaster</b> and then in the drop down listbox choose the <b>Roaster</b> Model, repeat this for "MaltMill/MaltMill", "MashTun/MashTun", "BoilKettle/BoilKettle", "Fermenter/Fermenter", "BrightTank/BrightTank", and "BottleLine/BottleLine", then click the <b>Save</b> button at the bottom of the page              
+7. Create and deploy the AWS IoT SiteWise Edge gateway to the Edge Device, please use this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/configure-gateway-ggv2.html. The Data processing pack is not required.
 
-10. After creating the Models, we can create Assets that will represent the physical assets (digital twins) that exist in the manufacuring facility, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/create-assets.html.  The plant hierarchy that you will create looks like this [Asset Plant Hierarchy](./images/Asset_Plant_Hierarchy.jpg
-).  
+    - <b>Note: When configuring the OPC UA datasource in the IoT SiteWise (or any 3rd party OPC UA Client), set the "Message security mode" to "None" and the "Authentication configuration" to "None - No authentication".  The simulator OPC UA Server program has not been tested with encryption or certificates for this current version of the program.</b>          
 
-11. To begin creating Assets, click the <b>Create asset</b> button and create each of the following:
-    - In the <b>Model</b> drop-down list box, select <b>BottleLine</b> and name it <b>BottleLine401</b>, click the <b>Create asset</b> button.  Repeat this process for <b>BottleLine402</b> and <b>BottleLine403</b>.
-    - In the <b>Model</b> drop-down list box, select <b>BrightTank</b> and name it <b>BrightTank301</b>, click the <b>Create asset</b> button.  Repeat this process for <b>BrightTank302</b>, <b>BrightTank303</b>, <b>BrightTank304</b>, <b>BrightTank305</b>.
-    - In the <b>Model</b> drop-down list box, select <b>Fermenter</b> and name it <b>Fermenter100</b>, click the <b>Create asset</b> button.  Repeat this process for <b>Fermenter200</b>. 
-    - In the <b>Model</b> drop-down list box, select <b>MashTun</b> and name it <b>MashTun100</b>, click the <b>Create asset</b> button.  Repeat this process for <b>MashTun200</b>.
-    - In the <b>Model</b> drop-down list box, select <b>MaltMill</b> and name it <b>MaltMill100</b>, click the <b>Create asset</b> button.  Repeat this process for <b>MaltMill200</b>.
-    - In the <b>Model</b> drop-down list box, select <b>Roaster</b> and name it <b>Roaster100</b>, click the <b>Create asset</b> button.  Repeat this process for <b>Roaster200</b>.
-    - In the <b>Model</b> drop-down list box, select <b>Area</b> and name it <b>Bottling</b>, click the <b>Create asset</b> button.  Repeat this process for <b>BeerStorage</b>, <b>Fermentation</b>, <b>Brewing</b>, <b>Mashing</b>, and <b>Roasting</b>.
-    - In the <b>Model</b> drop-down list box, select <b>Site</b> and name it <b>IrvinePlant</b>, click the <b>Create asset</b> button.
-    - In the <b>Model</b> drop-down list box, select <b>Enterprise</b> and name it <b>AmazonBreweries</b>, click the <b>Create asset</b> button.               
+8. Run the script below to start the simulation and OPC UA Server. If this were a custom Greengrass component, it would run this command for you.
+```
+python3 awsBrewSimServer.py --publishtositewise=False --region=us-west-2
 
-12. Now we need to create the Asset hierarchy for the physical assets for more meaningful data context. 
-    - In the Assets list, open the <b>Bottling</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>BottleLine</b> and for the <b>Asset</b> select <b>BottleLine401</b>. Repeat this for <b>Bottleline/BottleLine402</b> and <b>Bottleline/BottleLine403</b>. 
-    - In the Assets list, open the <b>BeerStorage</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>BrightTank</b> and for the <b>Asset</b> select <b>BrightTank301</b>. Repeat this for <b>BrightTank/BrightTank302</b>, <b>BrightTank/BrightTank303</b>, <b>BrightTank/BrightTank304</b>, and <b>BrightTank/BrightTank305</b>.    
-    - In the Assets list, open the <b>Fermentation</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Fermenter</b> and for the <b>Asset</b> select <b>Fermenter100</b>. Repeat this for <b>Fermenter/Fermenter200</b>. 
-    - In the Assets list, open the <b>Brewing</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>BoilKettle</b> and for the <b>Asset</b> select <b>BoilKettle100</b>. Repeat this for <b>BoilKettle/BoilKettle200</b>.
-    - In the Assets list, open the <b>Mashing</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>MaltMill</b> and for the <b>Asset</b> select <b>MaltMill100</b>. Repeat this for <b>MaltMill/MaltMill200</b> as well <b>MashTun/MashTun100</b> and <b>MashTun/MashTun200</b>. 
-    - In the Assets list, open the <b>Roasting</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Roaster</b> and for the <b>Asset</b> select <b>Roaster100</b>. Repeat this for <b>Roaster/Roaster200</b>.
-    - In the Assets list, open the <b>IrvinePlant</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Areas</b> and for the <b>Asset</b> select <b>Bottling</b>. Repeat this for <b>Areas/BeerStorage</b>, <b>Areas/Fermentation</b>, <b>Areas/Brewing</b>, <b>Areas/Mashing</b>, and <b>Areas/Roasting</b>.
-    - In the Assets list, open the <b>AmazonBreweries</b> Asset, click the <b>Edit</b> button, scroll down to <b>Assets associated to this asset</b> section and click the <b>Add associated asset</b> button and for <b>Hierarchy</b> select <b>Sites</b> and for the <b>Asset</b> select <b>IrvinePlant</b>. 
+```
 
-13. Refresh the browser to update the hierarchy. 
+### (Option B) Publish values directly to AWS IoT SiteWise
 
-14. The final prerequisite task is to add an Alias to each Measurement in each Asset.  If you have Data Streams capability enabled, you can use the AWS Console UI to manage data streams coming in from industrial assets, please see this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/manage-data-streams-console.html.  If you need to execute this manually, please follow this alias pattern to fill in the Alias field for each Measurement:
-    - /AmazonBreweries/IrvinePlant/<i>Area</i>/<i>AssetName</i>/<i>MeasurementName</i>
-  - Here are a handful of examples to get you started:
-    - /AmazonBreweries/IrvinePlant/Roasting/Roaster100/Utilization  
-    - /AmazonBreweries/IrvinePlant/Mashing/MashTun100/Utilization
-    - /AmazonBreweries/IrvinePlant/Brewing/BoilKettle100/Utilization
-    - /AmazonBreweries/IrvinePlant/Fermentation/Fermenter100/Utilization 
-    - /AmazonBreweries/IrvinePlant/BeerStorage/BrightTank301/Utilization 
-    - /AmazonBreweries/IrvinePlant/Bottling/BottleLine401/Utilization    
+9. If you would like to simply publish values directly to IoT SiteWise, run the command below. It will publish values at the interval provided:
+```
+python3 awsBrewSimServer.py --publishtositewise=True --interval=5 --region=us-west-2
 
+```
