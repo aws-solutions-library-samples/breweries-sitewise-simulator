@@ -89,7 +89,7 @@ python3 awsBrewSimServer.py --publishtositewise=False --region=us-west-2
 
 ### (Option B) Publish values directly to AWS IoT SiteWise
 
-9. If you would like to simply publish values directly to IoT SiteWise, run the command below. It will publish values at the interval provided:
+9. If you would like to simply publish values directly to IoT SiteWise like the Quick Deploy example above, run the command below. It will publish values at the interval provided:
 ```
 python3 awsBrewSimServer.py --publishtositewise=True --interval=5 --region=us-west-2
 

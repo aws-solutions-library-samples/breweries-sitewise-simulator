@@ -9,7 +9,7 @@
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
-# Amazonian Breweries is a program to exercise the capabilities
+# ACME Breweries is a program to exercise the capabilities
 # of IoT SiteWise (Monitor), IoT Greengrass, IoT TwinMaker, and other IoT 
 # based AWS services that constantly runs and produces factory like data.
 #
@@ -54,7 +54,7 @@ if __name__ == "__main__":
     Main Program Overview
     ----------
 
-    This Main program file serves to bring the Amazonian Brewery simulation to life, to integrate everything
+    This Main program file serves to bring the ACME Brewery simulation to life, to integrate everything
     together, to execute the control narrative.
 
     The major responsibilities include:
