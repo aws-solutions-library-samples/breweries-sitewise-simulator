@@ -1034,6 +1034,7 @@ if __name__ == "__main__":
         
         if(publishtositewise):
             t = threading.Thread(target=publish_to_sitewise_thread, args=())
+            t.daemon = True
             t.start()
         
         while True:
@@ -2405,3 +2406,4 @@ if __name__ == "__main__":
     finally:
         #close connection, remove subcsriptions, etc
         server.stop()
+        
