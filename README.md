@@ -1,8 +1,8 @@
-# ACME Breweries SiteWise Simulator - Getting Started
+# Breweries SiteWise Simulator - Getting Started
 
 ## Summary
 
-ACME Breweries is a Python based simulation program to exercise the capabilities of IoT SiteWise (Monitor), IoT Greengrass, IoT TwinMaker, and other IoT based AWS services that constantly runs and produces factory like data exposed via an OPC UA Server (a cross-platform, open-source, IEC62541 standard for data exchange from sensors to cloud applications developed by the OPC Foundation) for consumption by an OPC UA Client (like the IoT SiteWise OPC UA Collector). In addition, you can configure the publishing of values directly to IoT SiteWise at a specified interval. 
+This repository contains a Python based simulation of a Brewery manufacturing process to exercise the capabilities of IoT SiteWise (Monitor), IoT Greengrass, IoT TwinMaker, and other IoT based AWS services that constantly runs and produces factory like data exposed via an OPC UA Server (a cross-platform, open-source, IEC62541 standard for data exchange from sensors to cloud applications developed by the OPC Foundation) for consumption by an OPC UA Client (like the IoT SiteWise OPC UA Collector). In addition, you can configure the publishing of values directly to IoT SiteWise at a specified interval. 
 
  - Example Command to publish data to IoT SiteWise every 5 seconds to us-west-2:
       ```
@@ -14,18 +14,18 @@ Feel free to run this python simulator in your own environment manually or throu
 
 ## Simulation Description
       
-This simulator program creates factory like quality data.  This section of the getting started guide will describe how the ACME Brewery works so you can have a better understanding of how to use and leverage the industrial data provided by the brewery. 
+This simulator program creates factory like quality data.  This section of the getting started guide will describe how the brewery works so you can have a better understanding of how to use and leverage the industrial data provided by the brewery. 
 
-The diagram below is an view of the brewery material flow for the Irvine plant. ACME Brewery simulates production and consumption of items through the process below. This includes good production, scrap, and simulation of various utilization states. Telemetry data is also generated at the various operations for temperature and levels. With the data produced by this simulation, metrics are calculated in the SiteWise Models for OEE (Utilization, Performance, and Quality).
+The diagram below is an view of the brewery material flow for the Irvine plant. The Brewery simulates production and consumption of items through the process below. This includes good production, scrap, and simulation of various utilization states. Telemetry data is also generated at the various operations for temperature and levels. With the data produced by this simulation, metrics are calculated in the SiteWise Models for OEE (Utilization, Performance, and Quality).
 
-![ACMEBreweriesMaterialFlow](./images/ACMEBreweriesMaterialFlow.png)
+![BreweriesMaterialFlow](./images/BreweriesMaterialFlow.png)
 
 
 ## Quick Deploy
 
 Quick deploy will use cloudformation to setup an EC2 instance to run the simulator and publish values directly to IoT SiteWise, as seen in the architecture below:
 
-![ACMEBreweriesPublishToSW](./images/ACMEBreweriesPublishToSW.png)
+![BreweriesPublishToSW](./images/BreweriesPublishToSW.png)
 
 1. Log on to your AWS Console.
 2. Click on this link to install the CloudFormation template on your account.
@@ -73,7 +73,7 @@ Quick deploy will use cloudformation to setup an EC2 instance to run the simulat
 ### (Option A) Ingest Data through and OPC UA Client like AWS IoT SiteWise Edge Gateway
 
 If you are seeking to ingest data through OPC, you can use AWS IoT SiteWise Edge gateway to ingest this data. A Greengrass component can be created to make this simualtor deployable. Feel free to do this yourself until component sample is released or run it manually on your edge device. Below is a example architecture of this integration:
-![ACMEBreweriesOPCArchitecture](./images/ACMEBreweriesOPCArchitecture.png)
+![BreweriesOPCArchitecture](./images/BreweriesOPCArchitecture.png)
 
 6. Create an Edge Device (Ubuntu 20.04 or 18.04, Red Hat Enterprise Linux (RHEL) 8, or Amazon Linux 2) to host AWS IoT SiteWise Edge gateway.  
 
