@@ -2141,6 +2141,67 @@
                 ]
             }
         },
+        "SiteResource": {
+            "Type": "AWS::IoTSiteWise::AssetModel",
+            "Properties": {
+                "AssetModelName": "Site",
+                "AssetModelDescription": "A site is a physical, geographic, or logical grouping determined by the company. It may include areas, production lines, process units and production units. The four-level function of the a site involves local location management and optimization. Site planning may involve units, production lines, or units in the area. Geographic location and main production capacity usually identify a location. The location usually has well-defined manufacturing capabilities.",
+                "AssetModelProperties": [
+                    {
+                        "Name": "City",
+                        "DataType": "STRING",
+                        "Type": {
+                            "TypeName": "Attribute",
+                            "Attribute": {}
+                        },
+                        "LogicalId": "City8aa33a4d"
+                    },
+                    {
+                        "Name": "Latitude",
+                        "DataType": "DOUBLE",
+                        "Type": {
+                            "TypeName": "Attribute",
+                            "Attribute": {}
+                        },
+                        "LogicalId": "Latitudec8e1af74"
+                    },
+                    {
+                        "Name": "Longitude",
+                        "DataType": "DOUBLE",
+                        "Type": {
+                            "TypeName": "Attribute",
+                            "Attribute": {}
+                        },
+                        "LogicalId": "Longitudebab6119a"
+                    },
+                    {
+                        "Name": "Name",
+                        "DataType": "STRING",
+                        "Type": {
+                            "TypeName": "Attribute",
+                            "Attribute": {}
+                        },
+                        "LogicalId": "Name5cb33aa9"
+                    }
+                ],
+                "AssetModelHierarchies": [
+                    {
+                        "Name": "Area",
+                        "ChildAssetModelId": {
+                            "Ref": "AreaResource"
+                        },
+                        "LogicalId": "Area"
+                    },
+                    {
+                        "Name": "BottlingArea",
+                        "ChildAssetModelId": {
+                            "Ref": "BottlingAreaResource"
+                        },
+                        "LogicalId": "BottlingArea"
+                    }
+                ]
+            }
+        },
         "FermenterResource": {
             "Type": "AWS::IoTSiteWise::AssetModel",
             "Properties": {

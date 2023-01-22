@@ -1,0 +1,243 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: >-
+  Brewery Simulator Quick Deploy Template. Deploys simulation script to an EC2
+  instance and installs a CF template for IoT SiteWise
+Parameters:
+  InstanceType:
+    Type: String
+    Description: ''
+    Default: t2.micro
+    AllowedValues:
+      - t2.micro
+      - t3.micro
+    ConstraintDescription: must be a valid EC2 instance type.
+  KeyName:
+    Description: SSH Keypair to login to the instance
+    Type: 'AWS::EC2::KeyPair::KeyName'
+Mappings:
+  AWSRegion2AMI:
+    us-east-1:
+      ami: ami-0b5eea76982371e91
+    us-west-2:
+      ami: ami-0ceecbb0f30a902a6
+    us-east-2:
+      ami: ami-0a606d8395a538502
+    ap-south-1:
+      ami: ami-0cca134ec43cf708f
+    ap-northeast-2:
+      ami: ami-035233c9da2fabf52
+    ap-southeast-1:
+      ami: ami-005835d578c62050d
+    ap-southeast-2:
+      ami: ami-051a81c2bd3e755db
+    ap-northeast-1:
+      ami: ami-0bba69335379e17f8
+    ca-central-1:
+      ami: ami-06c3426233c180fef
+    eu-central-1:
+      ami: ami-0a261c0e5f51090b1
+    eu-west-1:
+      ami: ami-0fe0b2cf0e1f25c8a
+Resources:
+  SimulatorInstance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      ImageId: !FindInMap 
+        - AWSRegion2AMI
+        - !Ref 'AWS::Region'
+        - ami
+      Tags:
+        - Key: Name
+          Value: Brewery Simulator
+      InstanceType: !Ref InstanceType
+      IamInstanceProfile: !Ref SimulatorIAMInstanceProfile
+      KeyName: !Ref KeyName
+      SecurityGroupIds:
+        - !Ref SimulatorSecurityGroup
+      UserData: !Base64 
+        'Fn::Join':
+          - ''
+          - - |
+              #!/bin/bash -x
+              # Install simulator and packages
+              yum update -y
+              yum install -y aws-cfn-bootstrap
+            - /opt/aws/bin/cfn-init -v
+            - ' --stack '
+            - !Ref 'AWS::StackName'
+            - ' --resource SimulatorInstance '
+            - ' --region '
+            - !Ref 'AWS::Region'
+            - |+
+
+            - >
+              yum -y groupinstall "Development Tools"
+
+              yum erase openssl-devel -y
+
+              yum install openssl11 openssl11-devel  libffi-devel bzip2-devel
+              wget -y
+
+              wget https://www.python.org/ftp/python/3.10.2/Python-3.10.2.tgz
+
+              tar zxvf Python-3.10.2.tgz
+
+              cd Python-3.10.2/
+
+              ./configure
+
+              nproc
+
+              make -j $(nproc)
+
+              make altinstall
+
+              yum install -y python-opcua python-opcua-tools jq
+
+              pip3.10 install opcua boto3 cryptography lxml pytz --no-input
+
+              git clone
+              https://github.com/krazers/breweries-sitewise-simulator.git
+              /brewery
+
+              #aws cloudformation deploy --template-file
+              /brewery/breweries-sitewise-simulator/Breweries/cf/sitewise-assets.json
+              --stack-name brewery-simulator
+            - ''
+            - >-
+              echo "@reboot /usr/local/bin/python3.10
+              /brewery/Breweries/awsBrewSimServer.py --publishtositewise=True
+              --interval=5 --region=
+            - !Ref 'AWS::Region'
+            - '" > my-crontab'
+            - |+
+
+            - |
+              systemctl enable cron.service
+              crontab my-crontab
+            - ''
+            - |
+              # Signal the status from cfn-init
+            - '/opt/aws/bin/cfn-signal -e $? '
+            - ' --stack '
+            - !Ref 'AWS::StackName'
+            - ' --resource SimulatorInstance '
+            - ' --region '
+            - !Ref 'AWS::Region'
+            - |+
+
+            - >-
+              /usr/local/bin/python3.10 /brewery/Breweries/awsBrewSimServer.py
+              --publishtositewise=True --interval=5 --region=
+            - !Ref 'AWS::Region'
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 7755ae8b-0af6-4687-ad9f-e0335896a0f6
+  SimulatorSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: ACME Brewery SG
+      SecurityGroupIngress: []
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 9545159e-eb2b-4189-aa07-67112dd8e1d4
+  SimulatorIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore'
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 91d81a05-40a4-40aa-9e6f-3752ed962081
+  SimulatorIAMInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref SimulatorIAMRole
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: 10c56ae2-36a2-4da8-8263-b27934d9c145
+  SimulatorIAMPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: SimulatorSiteWisePolicy
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'iotsitewise:BatchPutAssetPropertyValue'
+            Resource: '*'
+      Roles:
+        - !Ref SimulatorIAMRole
+    Metadata:
+      'AWS::CloudFormation::Designer':
+        id: a2d16b4a-37f8-461e-a945-60d45eb5f0d8
+Outputs:
+  DemoInstanceId:
+    Description: Instance Id
+    Value: !Ref SimulatorInstance
+Metadata:
+  'AWS::CloudFormation::Designer':
+    9545159e-eb2b-4189-aa07-67112dd8e1d4:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 90
+        'y': 90
+      z: 1
+      embeds: []
+    7755ae8b-0af6-4687-ad9f-e0335896a0f6:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 180
+        'y': 90
+      z: 1
+      embeds: []
+      isassociatedwith:
+        - 9545159e-eb2b-4189-aa07-67112dd8e1d4
+    91d81a05-40a4-40aa-9e6f-3752ed962081:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 270
+        'y': 150
+      z: 1
+      embeds: []
+    10c56ae2-36a2-4da8-8263-b27934d9c145:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 270
+        'y': 30
+      z: 1
+      embeds: []
+    a2d16b4a-37f8-461e-a945-60d45eb5f0d8:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 390
+        'y': 90
+      z: 1
+      embeds: []
+      isassociatedwith:
+        - 91d81a05-40a4-40aa-9e6f-3752ed962081

@@ -4,32 +4,31 @@
 
 This repository contains a Python based simulation of a Brewery manufacturing process to exercise the capabilities of IoT SiteWise (Monitor), IoT Greengrass, IoT TwinMaker, and other IoT based AWS services that constantly runs and produces factory like data exposed via an OPC UA Server (a cross-platform, open-source, IEC62541 standard for data exchange from sensors to cloud applications developed by the OPC Foundation) for consumption by an OPC UA Client (like the IoT SiteWise OPC UA Collector). In addition, you can configure the publishing of values directly to IoT SiteWise at a specified interval. 
 
- - Example Command to publish data to IoT SiteWise every 5 seconds to us-west-2:
-      ```
-      python3 awsBrewSimServer.py --publishtositewise=True --interval=5 --region=us-west-2
-
-      ```
-
-Feel free to run this python simulator in your own environment manually or through a quick deploy using the cloudformation template below.
+Feel free to run this python simulator in your own environment manually or through a quick deploy using the cloudformation templates below.
 
 ## Simulation Description
       
-This simulator program creates factory like quality data.  This section of the getting started guide will describe how the brewery works so you can have a better understanding of how to use and leverage the industrial data provided by the brewery. 
+This simulator program creates factory like data.  This section of the getting started guide will describe how the brewery works so you can have a better understanding of how to use and leverage the industrial data provided by the brewery. 
 
-The diagram below is an view of the brewery material flow for the Irvine plant. The Brewery simulates production and consumption of items through the process below. This includes good production, scrap, and simulation of various utilization states. Telemetry data is also generated at the various operations for temperature and levels. With the data produced by this simulation, metrics are calculated in the SiteWise Models for OEE (Utilization, Performance, and Quality).
+The diagram below is an view of the brewery material flow for the Irvine plant. The Brewery simulates production and consumption of items through the process below. This includes good production, scrap, and simulation of various utilization states. Telemetry data is also generated at the various operations for sensors like temperature and levels. With the data produced by this simulation, metrics are calculated in the SiteWise Models for OEE (Utilization, Performance, and Quality).
 
 ![BreweriesMaterialFlow](./images/BreweriesMaterialFlow.png)
 
 
 ## Quick Deploy
 
-Quick deploy will use cloudformation to setup an EC2 instance to run the simulator and publish values directly to IoT SiteWise, as seen in the architecture below:
+Quick deploy will use two cloudformation stack. One stack will setup an EC2 instance to run the simulator and publish values directly to IoT SiteWise. The second stack will deploy models and assets to IoT SiteWise. See the architecture below:
 
 ![BreweriesPublishToSW](./images/BreweriesPublishToSW.png)
 
 1. Log on to your AWS Console.
-2. Click on this link to install the CloudFormation template on your account.
-3. Once complete, you will start to see live values stored in IoT SiteWise. 
+2. Download this [cloudformation](cf/sitewise-assets.json) template from this repository to deploy models and assets to IoT SiteWise.
+
+> **_NOTE:_**  It is important that you deploy this step before the simulator as you may see a conflict with aliases already used within a datastream.
+3. Go to CloudFormation in your console and click Create Stack.
+4. Upload the template file your downloaded and proceed through the steps to deploy.
+![DeployTemplate](./images/deploytemplate.png)
+5. Wait until the stack is completed successfully. Now deploy this [cloudformation](cf/simulator-server.json) template from this repository to deploy the simulation server. This process will take ~10 minutes to complete.
 
 ## Manual Install
 
@@ -39,36 +38,30 @@ Quick deploy will use cloudformation to setup an EC2 instance to run the simulat
    - Verify your python3 path and version (<b>needs to be 3.10.0+</b>). 
      ```
      python3 --version
-
      ```
 3. Install the OPC UA Server Python Library
 
     - With pip:
       ```
-      pip install opcua
-
+      pip3 install opcua boto3 cryptography lxml pytz --no-input
       ```
 
     - Ubuntu:
       ```
       apt install python-opcua        # Library
       apt install python-opcua-tools  # Command-line tools
-
       ```
 
-    - Dependencies:
-      ```
-      cryptography, dateutil, lxml and pytz.
-
-      ```
 
 4. Clone this respository to your environment.
       ```
-      git clone https://REPO
-
+      git clone [This Repository]
       ```
 
-5. Log in to your AWS Console and deploy this cloudformation template to configure all your IoT SiteWise Models and Assets.
+5. Log in to your AWS Console and download this [cloudformation](cf/sitewise-assets.json) template from this repository to deploy models and assets to IoT SiteWise.
+6. Go to CloudFormation in your console and click Create Stack.
+7. Upload the template file your downloaded and proceed through the steps to deploy.
+![DeployTemplate](./images/deploytemplate.png)
 
 ### (Option A) Ingest Data through and OPC UA Client like AWS IoT SiteWise Edge Gateway
 
@@ -79,7 +72,7 @@ If you are seeking to ingest data through OPC, you can use AWS IoT SiteWise Edge
 
 7. Create and deploy the AWS IoT SiteWise Edge gateway to the Edge Device, please use this URL for reference - https://docs.aws.amazon.com/iot-sitewise/latest/userguide/configure-gateway-ggv2.html. The Data processing pack is not required.
 
-    - <b>Note: When configuring the OPC UA datasource in the IoT SiteWise (or any 3rd party OPC UA Client), set the "Message security mode" to "None" and the "Authentication configuration" to "None - No authentication".  The simulator OPC UA Server program has not been tested with encryption or certificates for this current version of the program.</b>          
+    > **_NOTE:_**  Note: When configuring the OPC UA datasource in the IoT SiteWise (or any 3rd party OPC UA Client), set the "Message security mode" to "None" and the "Authentication configuration" to "None - No authentication".  The simulator OPC UA Server program has not been tested with encryption or certificates for this current version of the program.          
 
 8. Run the script below to start the simulation and OPC UA Server. If this were a custom Greengrass component, it would run this command for you.
 ```
@@ -89,7 +82,7 @@ python3 awsBrewSimServer.py --publishtositewise=False --region=us-west-2
 
 ### (Option B) Publish values directly to AWS IoT SiteWise
 
-9. If you would like to simply publish values directly to IoT SiteWise like the Quick Deploy example above, run the command below. It will publish values at the interval provided:
+9. If you would like to simply publish values directly to IoT SiteWise like the Quick Deploy example above, run the command below. It will publish values at the interval specified:
 ```
 python3 awsBrewSimServer.py --publishtositewise=True --interval=5 --region=us-west-2
 
