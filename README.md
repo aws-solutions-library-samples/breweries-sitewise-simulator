@@ -15,22 +15,22 @@ The diagram below is an view of the brewery material flow for the Irvine plant. 
 ![BreweriesMaterialFlow](./images/BreweriesMaterialFlow.png)
 
 
-## Quick Deploy
+## 1. Quick Deploy
 
-Quick deploy will use two cloudformation stack. One stack will setup an EC2 instance to run the simulator and publish values directly to IoT SiteWise. The second stack will deploy models and assets to IoT SiteWise. See the architecture below:
+Quick deploy will use two cloudformation stacks. One stack will setup an EC2 instance to run the simulator and publish values directly to IoT SiteWise. The second stack will deploy models and assets to IoT SiteWise. See the architecture below:
 
 ![BreweriesPublishToSW](./images/BreweriesPublishToSW.png)
 
 1. Log on to your AWS Console.
-2. Download this [cloudformation](cf/sitewise-assets.json) template from this repository to deploy models and assets to IoT SiteWise.
+2. Download this <a href="cf/sitewise-assets.json?raw=1" download>cloudformation</a> template from this repository to deploy models and assets to IoT SiteWise.
 
 > **_NOTE:_**  It is important that you deploy this step before the simulator as you may see a conflict with aliases already used within a datastream.
-3. Go to CloudFormation in your console and click Create Stack.
+3. Go to CloudFormation in your console and click `Create Stack`.
 4. Upload the template file your downloaded and proceed through the steps to deploy.
 ![DeployTemplate](./images/deploytemplate.png)
-5. Wait until the stack is completed successfully. Now deploy this [cloudformation](cf/simulator-server.json) template from this repository to deploy the simulation server. This process will take ~10 minutes to complete.
+5. Wait until the stack is completed successfully. Now download and deploy this <a href="cf/simulator-server.json?raw=1" download>cloudformation</a> template from this repository to deploy the simulation server. This process will take ~10 minutes to complete.
 
-## Manual Install
+## 2. Manual Install
 
 1. Identify a system (Linux, Windows, or macOS) to host the brewery simulator Python program.
 
@@ -58,12 +58,12 @@ Quick deploy will use two cloudformation stack. One stack will setup an EC2 inst
       git clone [This Repository]
       ```
 
-5. Log in to your AWS Console and download this [cloudformation](cf/sitewise-assets.json) template from this repository to deploy models and assets to IoT SiteWise.
-6. Go to CloudFormation in your console and click Create Stack.
+5. Log in to your AWS Console and download this <a href="cf/sitewise-assets.json?raw=1" download>cloudformation</a> template from this repository to deploy models and assets to IoT SiteWise.
+6. Go to CloudFormation in your console and click `Create Stack`.
 7. Upload the template file your downloaded and proceed through the steps to deploy.
 ![DeployTemplate](./images/deploytemplate.png)
 
-### (Option A) Ingest Data through and OPC UA Client like AWS IoT SiteWise Edge Gateway
+### 1A - Ingest Data through and OPC UA Client like AWS IoT SiteWise Edge Gateway
 
 If you are seeking to ingest data through OPC, you can use AWS IoT SiteWise Edge gateway to ingest this data. A Greengrass component can be created to make this simualtor deployable. Feel free to do this yourself until component sample is released or run it manually on your edge device. Below is a example architecture of this integration:
 ![BreweriesOPCArchitecture](./images/BreweriesOPCArchitecture.png)
@@ -80,7 +80,7 @@ python3 awsBrewSimServer.py --publishtositewise=False --region=us-west-2
 
 ```
 
-### (Option B) Publish values directly to AWS IoT SiteWise
+### 1B - Publish values directly to AWS IoT SiteWise
 
 9. If you would like to simply publish values directly to IoT SiteWise like the Quick Deploy example above, run the command below. It will publish values at the interval specified:
 ```
