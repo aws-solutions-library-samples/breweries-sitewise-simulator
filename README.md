@@ -6,6 +6,8 @@ This repository contains a Python based simulation of a Brewery manufacturing pr
 
 Feel free to run this python simulator in your own environment manually or through a quick deploy using the cloudformation templates below.
 
+<hr>
+
 ## Simulation Description
       
 This simulator program creates factory like data.  This section of the getting started guide will describe how the brewery works so you can have a better understanding of how to use and leverage the industrial data provided by the brewery. 
@@ -14,6 +16,7 @@ The diagram below is an view of the brewery material flow for the Irvine plant. 
 
 ![BreweriesMaterialFlow](./images/BreweriesMaterialFlow.png)
 
+<hr>
 
 ## 1. Quick Deploy
 
@@ -29,6 +32,8 @@ Quick deploy will use two cloudformation stacks. One stack will setup an EC2 ins
 4. Upload the template file your downloaded and proceed through the steps to deploy.
 ![DeployTemplate](./images/deploytemplate.png)
 5. Wait until the stack is completed successfully. Now download and deploy this <a href="cf/simulator-server.json?raw=1" download>cloudformation</a> template from this repository to deploy the simulation server. This process will take ~10 minutes to complete.
+
+<hr>
 
 ## 2. Manual Install
 
