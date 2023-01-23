@@ -12,7 +12,9 @@ Feel free to run this python simulator in your own environment manually or throu
       
 This simulator program creates factory like data.  This section of the getting started guide will describe how the brewery works so you can have a better understanding of how to use and leverage the industrial data provided by the brewery. 
 
-The diagram below is an view of the brewery material flow for the Irvine plant. The Brewery simulates production and consumption of items through the process below. This includes good production, scrap, and simulation of various utilization states. Telemetry data is also generated at the various operations for sensors like temperature and levels. With the data produced by this simulation, metrics are calculated in the SiteWise Models for OEE (Utilization, Performance, and Quality).
+The diagram below is an view of the brewery material flow for the Irvine plant. The Brewery simulates production and consumption of items through the process below. This includes good production, scrap, and simulation of various utilization states. Telemetry data is also generated at the various operations for sensors like temperature, levels, and valve states. With the data produced by this simulation, metrics are calculated in the SiteWise Models for OEE (Utilization, Performance, and Quality).
+
+> **_NOTE:_**  When deploying this simulation, it does take several minutes before equipment downstream begin to generate data as they are on hold waiting for WIP items to be available to consume.
 
 ![BreweriesMaterialFlow](./images/BreweriesMaterialFlow.png)
 
