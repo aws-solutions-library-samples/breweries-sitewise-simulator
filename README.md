@@ -60,7 +60,7 @@ Quick deploy will use two cloudformation stacks. One stack will setup an EC2 ins
 
 4. Clone this respository to your environment.
       ```
-      git clone [This Repository]
+      git clone https://github.com/aws-samples/breweries-sitewise-simulator
       ```
 
 5. Log in to your AWS Console
