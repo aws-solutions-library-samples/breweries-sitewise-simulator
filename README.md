@@ -35,6 +35,13 @@ Quick deploy will use two cloudformation stacks. One stack will setup an EC2 ins
 ![DeployTemplate](./images/deploytemplate.png)
 5. Wait until the stack is completed successfully. Now download and deploy this <a href="cf/simulator-server.json?raw=1" download>cloudformation</a> template from this repository to deploy the simulation server. This process will take ~10 minutes to complete.
 
+### Clean Up
+
+To clean up, delete the following stacks in this order:
+- Simulation server
+- SiteWise Assets
+
+
 <hr>
 
 ## 2. Manual Install
