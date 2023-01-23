@@ -25,7 +25,7 @@ Quick deploy will use two cloudformation stacks. One stack will setup an EC2 ins
 ![BreweriesPublishToSW](./images/BreweriesPublishToSW.png)
 
 1. Log on to your AWS Console.
-2. Download this <a href="cf/sitewise-assets.json?raw=1" download>cloudformation</a> template from this repository to deploy models and assets to IoT SiteWise.
+2. Open this <a href="cf/sitewise-assets.json?raw=1" download>cloudformation</a> template and click "File->Save As" in your browser to download. This template deploy models and assets to IoT SiteWise.
 
 > **_NOTE:_**  It is important that you deploy this step before the simulator as you may see a conflict with aliases already used within a datastream.
 3. Go to CloudFormation in your console and click `Create Stack`.
@@ -63,9 +63,10 @@ Quick deploy will use two cloudformation stacks. One stack will setup an EC2 ins
       git clone [This Repository]
       ```
 
-5. Log in to your AWS Console and download this <a href="cf/sitewise-assets.json?raw=1" download>cloudformation</a> template from this repository to deploy models and assets to IoT SiteWise.
-6. Go to CloudFormation in your console and click `Create Stack`.
-7. Upload the template file your downloaded and proceed through the steps to deploy.
+5. Log in to your AWS Console
+6. Open this <a href="cf/sitewise-assets.json?raw=1" download>cloudformation</a> template and click "File->Save As" in your browser to download. This template deploy models and assets to IoT SiteWise.
+7. Go to CloudFormation in your console and click `Create Stack`.
+8. Upload the template file your downloaded and proceed through the steps to deploy.
 ![DeployTemplate](./images/deploytemplate.png)
 
 ### 2A - Ingest Data through and OPC UA Client like AWS IoT SiteWise Edge Gateway
