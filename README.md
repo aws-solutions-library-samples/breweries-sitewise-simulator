@@ -78,7 +78,7 @@ To clean up, delete the following stacks in this order:
 8. Upload the template file your downloaded and proceed through the steps to deploy.
 ![DeployTemplate](./images/deploytemplate.png)
 
-### 2A - Ingest Data through and OPC UA Client like AWS IoT SiteWise Edge Gateway
+### 2A. Ingest Data through and OPC UA Client like AWS IoT SiteWise Edge Gateway
 
 If you are seeking to ingest data through OPC, you can use AWS IoT SiteWise Edge gateway to ingest this data. A Greengrass component can be created to make this simualtor deployable. Feel free to do this yourself until component sample is released or run it manually on your edge device. Below is a example architecture of this integration:
 ![BreweriesOPCArchitecture](./images/BreweriesOPCArchitecture.png)
@@ -95,7 +95,7 @@ python3 awsBrewSimServer.py --publishtositewise=False --region=us-west-2
 
 ```
 
-### 2B - Publish values directly to AWS IoT SiteWise
+### 2B. Publish values directly to AWS IoT SiteWise
 
 9. If you would like to simply publish values directly to IoT SiteWise like the Quick Deploy example above, run the command below. It will publish values at the interval specified:
 ```
