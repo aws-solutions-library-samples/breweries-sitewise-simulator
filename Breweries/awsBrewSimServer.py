@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
 
 #----------------------------------------------------------------------------
 # Created By  : Nick Santucci, Chris Azer, Tim Wilson
 # Created Date: January 18 2023
-# version ='1.1.0'
+# version ='0.1.0'
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------

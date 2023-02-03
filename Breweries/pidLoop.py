@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
 
 #----------------------------------------------------------------------------
 # Created By  : Nick Santucci
 # Created Date: February 14 2022 
-# version ='1.0.0'
+# version ='0.1.0'
 # ---------------------------------------------------------------------------
 
 class pidLoop:  
