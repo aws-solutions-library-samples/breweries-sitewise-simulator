@@ -97,7 +97,7 @@ Resources:
               pip3.10 install opcua boto3 cryptography lxml pytz --no-input
 
               git clone
-              https://github.com/krazers/breweries-sitewise-simulator.git
+              https://github.com/aws-samples/breweries-sitewise-simulator.git
               /brewery
 
               #aws cloudformation deploy --template-file
