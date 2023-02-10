@@ -1029,7 +1029,7 @@ if __name__ == "__main__":
     FerShipToTime200.PT = 15    
 
     # Start the OPC UA Server
-    #server.start()    
+    server.start()    
 
     try:
         
