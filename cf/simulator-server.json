@@ -13,10 +13,6 @@
                 "t3.medium"
             ],
             "ConstraintDescription": "must be a valid EC2 instance type."
-        },
-        "KeyName": {
-            "Description": "SSH Keypair to login to the instance",
-            "Type": "AWS::EC2::KeyPair::KeyName"
         }
     },
     "Mappings": {
@@ -80,9 +76,6 @@
                 },
                 "IamInstanceProfile": {
                     "Ref": "SimulatorIAMInstanceProfile"
-                },
-                "KeyName": {
-                    "Ref": "KeyName"
                 },
                 "SecurityGroupIds": [
                     {
