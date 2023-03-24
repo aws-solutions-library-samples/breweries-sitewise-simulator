@@ -49,6 +49,9 @@
             },
             "eu-west-1": {
                 "ami": "ami-0b752bf1df193a6c4"
+            },
+            "us-gov-west-1": {
+                "ami": "ami-08528bba60fc5bc86"
             }
         }
     },
@@ -173,7 +176,7 @@
                     ]
                 },
                 "ManagedPolicyArns": [
-                    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+                    "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"
                 ]
             },
             "Metadata": {
