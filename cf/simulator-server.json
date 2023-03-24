@@ -176,7 +176,7 @@
                     ]
                 },
                 "ManagedPolicyArns": [
-                    "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"
+                    { "Fn::Sub": "arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore" }
                 ]
             },
             "Metadata": {
