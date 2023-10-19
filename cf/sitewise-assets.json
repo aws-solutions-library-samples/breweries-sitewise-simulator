@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "Brewery SiteWise Assets",
+    "Description": "Brewery SiteWise Assets (SO9315)",
     "Resources": {        
         "BoilKettleResource": {
             "Type": "AWS::IoTSiteWise::AssetModel",
