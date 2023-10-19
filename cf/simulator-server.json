@@ -1,6 +1,6 @@
 {
     "AWSTemplateFormatVersion": "2010-09-09",
-    "Description": "Brewery Simulator Quick Deploy Template. Deploys simulation script to an EC2 instance and installs a CF template for IoT SiteWise",
+    "Description": "Brewery Simulator Quick Deploy Template. Deploys simulation script to an EC2 instance and installs a CF template for IoT SiteWise (SO9315)",
     "Parameters": {
         "InstanceType": {
             "Type": "String",
