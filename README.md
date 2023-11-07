@@ -69,7 +69,7 @@ To clean up, delete the following stacks in this order:
 
 4. Clone this respository to your environment.
       ```
-      git clone https://github.com/aws-samples/breweries-sitewise-simulator.git
+      git clone https://github.com/aws-solutions-library-samples/breweries-sitewise-simulator.git
       ```
 
 5. Log in to your AWS Console
