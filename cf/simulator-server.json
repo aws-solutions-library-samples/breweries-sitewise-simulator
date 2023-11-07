@@ -102,7 +102,7 @@
                                     "Ref": "AWS::Region"
                                 },
                                 "\n",
-                                "yum -y groupinstall \"Development Tools\"\nyum erase openssl-devel -y\nyum install openssl11 openssl11-devel  libffi-devel bzip2-devel wget -y\nwget https://www.python.org/ftp/python/3.10.2/Python-3.10.2.tgz\ntar zxvf Python-3.10.2.tgz\ncd Python-3.10.2/\n./configure\nnproc\nmake -j $(nproc)\nmake altinstall\nyum install -y python-opcua python-opcua-tools jq\npip3.10 install opcua boto3 cryptography lxml pytz --no-input\ngit clone https://github.com/aws-samples/breweries-sitewise-simulator.git /brewery\n",
+                                "yum -y groupinstall \"Development Tools\"\nyum erase openssl-devel -y\nyum install openssl11 openssl11-devel  libffi-devel bzip2-devel wget -y\nwget https://www.python.org/ftp/python/3.10.2/Python-3.10.2.tgz\ntar zxvf Python-3.10.2.tgz\ncd Python-3.10.2/\n./configure\nnproc\nmake -j $(nproc)\nmake altinstall\nyum install -y python-opcua python-opcua-tools jq\npip3.10 install opcua boto3 cryptography lxml pytz --no-input\ngit clone https://github.com/aws-solutions-library-samples/breweries-sitewise-simulator.git /brewery\n",
                                 "",
                                 "echo \"@reboot /usr/local/bin/python3.10 /brewery/Breweries/awsBrewSimServer.py --publishtositewise=True --interval=5 --region=",
                                 {
